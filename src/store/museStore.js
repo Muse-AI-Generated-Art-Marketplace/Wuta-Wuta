@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { SorobanRpc } from '@sorobanrpc';
-import { Keypair } from '@stellar/stellar-sdk';
+import { Keypair, Horizon } from '@stellar/stellar-sdk';
 
 const useMuseStore = create((set, get) => ({
   // State
@@ -10,8 +10,10 @@ const useMuseStore = create((set, get) => ({
   
   // Stellar connection
   stellarClient: null,
+  horizonServer: null,
   network: 'Test SDF Future Network ; October 2022',
   rpcUrl: 'https://rpc-futurenet.stellar.org',
+  horizonUrl: 'https://horizon-testnet.stellar.org',
   
   // Contract addresses
   contracts: {
@@ -44,6 +46,9 @@ const useMuseStore = create((set, get) => ({
       // Initialize Stellar RPC client
       const stellarClient = new SorobanRpc(get().rpcUrl);
       
+      // Initialize Horizon server
+      const horizonServer = new Horizon.Server(get().horizonUrl);
+      
       // Set contract addresses (these would be deployed contracts)
       const contracts = {
         artAssetToken: process.env.REACT_APP_ART_ASSET_TOKEN_CONTRACT || 'art_asset_token',
@@ -52,6 +57,7 @@ const useMuseStore = create((set, get) => ({
       
       set({ 
         stellarClient,
+        horizonServer,
         contracts,
         isConnected: true,
         isLoading: false 
@@ -379,6 +385,126 @@ const useMuseStore = create((set, get) => ({
   getUserListings: (userAddress) => {
     const { listings } = get();
     return listings.filter(listing => listing.seller === userAddress);
+  },
+
+  // Transaction history functions
+  fetchTransactions: async (userAddress, limit = 10, page = 1) => {
+    try {
+      const { horizonServer } = get();
+      if (!horizonServer || !userAddress) throw new Error('Not connected to Horizon');
+
+      const transactions = await horizonServer
+        .transactions()
+        .forAccount(userAddress)
+        .limit(limit)
+        .order('desc')
+        .call();
+
+      return transactions;
+    } catch (error) {
+      console.error('Failed to fetch transactions:', error);
+      throw error;
+    }
+  },
+
+  fetchWutaWutaTransactions: async (userAddress, limit = 10, page = 1) => {
+    try {
+      const transactions = await get().fetchTransactions(userAddress, limit, page);
+      
+      // Filter transactions related to Wuta-Wuta contract
+      const wutaWutaTxs = await Promise.all(
+        transactions.records.map(async (tx) => {
+          const isWutaWutaTx = await get().isWutaWutaTransaction(tx);
+          return isWutaWutaTx ? get().formatTransaction(tx) : null;
+        })
+      );
+
+      return wutaWutaTxs.filter(tx => tx !== null);
+    } catch (error) {
+      console.error('Failed to fetch Wuta-Wuta transactions:', error);
+      throw error;
+    }
+  },
+
+  isWutaWutaTransaction: async (transaction) => {
+    try {
+      const { contracts } = get();
+      if (!contracts.nftMarketplace) return true; // If no contract specified, show all transactions
+      
+      // Check if transaction involves Wuta-Wuta contract
+      const operations = transaction.operations || [];
+      return operations.some(op => 
+        op.type === 'invoke_host_function' && 
+        op.contract_id === contracts.nftMarketplace
+      );
+    } catch (error) {
+      console.error('Error checking transaction:', error);
+      return false;
+    }
+  },
+
+  formatTransaction: (transaction) => {
+    const operations = transaction.operations || [];
+    const mainOperation = operations[0] || {};
+    
+    return {
+      id: transaction.id,
+      hash: transaction.hash,
+      createdAt: transaction.created_at,
+      status: transaction.successful ? 'success' : 'failed',
+      type: get().getTransactionType(mainOperation),
+      amount: get().getTransactionAmount(mainOperation),
+      fee: transaction.fee_paid,
+      memo: transaction.memo || '',
+      operations: operations,
+      ledger: transaction.ledger_attr,
+      sourceAccount: transaction.source_account
+    };
+  },
+
+  getTransactionType: (operation) => {
+    switch (operation.type) {
+      case 'payment':
+        return 'Payment';
+      case 'invoke_host_function':
+        return 'Contract Call';
+      case 'create_account':
+        return 'Account Creation';
+      case 'manage_data':
+        return 'Data Management';
+      case 'set_options':
+        return 'Account Settings';
+      case 'change_trust':
+        return 'Trust Line';
+      case 'allow_trust':
+        return 'Allow Trust';
+      case 'account_merge':
+        return 'Account Merge';
+      case 'inflation':
+        return 'Inflation';
+      case 'manage_buy_offer':
+        return 'Buy Offer';
+      case 'manage_sell_offer':
+        return 'Sell Offer';
+      case 'create_passive_sell_offer':
+        return 'Passive Sell Offer';
+      case 'path_payment_strict_receive':
+        return 'Path Payment';
+      case 'path_payment_strict_send':
+        return 'Path Payment';
+      default:
+        return 'Unknown';
+    }
+  },
+
+  getTransactionAmount: (operation) => {
+    if (operation.type === 'payment' && operation.amount) {
+      return {
+        value: operation.amount,
+        asset: operation.asset_code || 'XLM'
+      };
+    }
+    return null;
   },
 }));
 
