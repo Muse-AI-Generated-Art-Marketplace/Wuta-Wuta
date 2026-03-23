@@ -131,13 +131,13 @@ jobs:
       id: slither
       with:
         target: 'contracts/'
-        slither-args: '--filter-paths "node_modules/" --exclude naming-convention,external-function'
+        slither-args: '--filter-paths "node_modules/" --exclude naming-convention,external-function --sarif slither.sarif'
         
     - name: Upload Slither results
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: always()
       with:
-        sarif_file: ${{ steps.slither.outputs.sarif }}
+        sarif_file: slither.sarif
 
   performance-tests:
     name: Performance Tests

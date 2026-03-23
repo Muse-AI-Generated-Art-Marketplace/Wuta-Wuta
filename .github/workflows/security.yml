@@ -34,13 +34,13 @@ jobs:
       id: slither
       with:
         target: 'contracts/'
-        slither-args: '--filter-paths "node_modules/" --exclude naming-convention,external-function --json slither-results.json'
+        slither-args: '--filter-paths "node_modules/" --exclude naming-convention,external-function --json slither-results.json --sarif slither.sarif'
         
     - name: Upload Slither SARIF
-      uses: github/codeql-action/upload-sarif@v3
+      uses: github/codeql-action/upload-sarif@v4
       if: always()
       with:
-        sarif_file: ${{ steps.slither.outputs.sarif }}
+        sarif_file: slither.sarif
         
     - name: Upload Slither JSON
       uses: actions/upload-artifact@v4
@@ -121,15 +121,15 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         
     - name: Run CodeQL analysis
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@v4
       with:
         languages: javascript
         
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
+      uses: github/codeql-action/autobuild@v4
       
     - name: Perform CodeQL analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@v4
 
   fuzz-testing:
     name: Fuzz Testing
