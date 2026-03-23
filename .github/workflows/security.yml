@@ -8,11 +8,7 @@ on:
   schedule:
     - cron: '0 0 * * 1' # Weekly on Monday
 
-permissions:
-  contents: read
-  pull-requests: write
-  security-events: write
-  issues: write
+permissions: write-all
 
 jobs:
   smart-contract-security:
@@ -40,13 +36,14 @@ jobs:
       id: slither
       with:
         target: 'contracts/'
-        slither-args: '--filter-paths "node_modules/" --exclude naming-convention,external-function --json slither-results.json --sarif slither.sarif'
+        slither-args: '--filter-paths "node_modules/" --exclude naming-convention,external-function --json slither-results.json'
+        sarif-file: slither.sarif
         
     - name: Upload Slither SARIF
       uses: github/codeql-action/upload-sarif@v4
       if: always()
       with:
-        sarif_file: ${{ steps.slither.outputs.sarif }}
+        sarif_file: slither.sarif
         
     - name: Upload Slither JSON
       uses: actions/upload-artifact@v4
@@ -125,6 +122,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.organization=muse-ai-generated-art-marketplace
+          -Dsonar.projectKey=Muse-AI-Generated-Art-Marketplace_Wuta-Wuta
+          -Dsonar.sources=src,contracts
+          -Dsonar.host.url=https://sonarcloud.io
         
     - name: Run CodeQL analysis
       uses: github/codeql-action/init@v4
@@ -161,20 +164,10 @@ jobs:
         pip install echidna
         
     - name: Run Echidna fuzz testing
-      run: |
-        # Create a simple fuzz test if not exists
-        if [ ! -f "test/fuzz/MuseNFTFuzz.sol" ]; then
-          mkdir -p test/fuzz
-          cat > test/fuzz/MuseNFTFuzz.sol << 'EOF'
-        contract MuseNFTFuzz {
-            function test_createCollaborativeArtwork(bytes calldata data) public {
-                // Fuzz test for artwork creation
-            }
-        }
-        EOF
-        fi
-        
-        echidna test/fuzz/MuseNFTFuzz.sol --contract MuseNFTFuzz || true
+      uses: crytic/echidna-action@v0.2.0
+      with:
+        files: test/fuzz/MuseNFTFuzz.sol
+        contract: MuseNFTFuzz
       continue-on-error: true
 
   formal-verification:
@@ -260,7 +253,7 @@ jobs:
         path: security-report.md
         
     - name: Comment PR with security report
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
       uses: actions/github-script@v6
       with:
         script: |
