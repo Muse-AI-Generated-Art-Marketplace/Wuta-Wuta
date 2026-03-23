@@ -37,13 +37,13 @@ jobs:
         slither-args: '--filter-paths "node_modules/" --exclude naming-convention,external-function --json slither-results.json'
         
     - name: Upload Slither SARIF
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: ${{ steps.slither.outputs.sarif }}
         
     - name: Upload Slither JSON
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: slither-results
@@ -56,7 +56,7 @@ jobs:
       continue-on-error: true
       
     - name: Upload Mythril results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: mythril-results
@@ -83,7 +83,7 @@ jobs:
       run: npm audit --json > npm-audit.json || true
       
     - name: Upload npm audit results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: npm-audit-results
@@ -121,15 +121,15 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         
     - name: Run CodeQL analysis
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: javascript
         
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+      uses: github/codeql-action/autobuild@v3
       
     - name: Perform CodeQL analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
 
   fuzz-testing:
     name: Fuzz Testing
@@ -217,7 +217,7 @@ jobs:
     
     steps:
     - name: Download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       
     - name: Generate security report
       run: |
@@ -248,7 +248,7 @@ jobs:
         fi
         
     - name: Upload security report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: security-report
         path: security-report.md

@@ -134,7 +134,7 @@ jobs:
         slither-args: '--filter-paths "node_modules/" --exclude naming-convention,external-function'
         
     - name: Upload Slither results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: ${{ steps.slither.outputs.sarif }}
