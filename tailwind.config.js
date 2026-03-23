@@ -41,5 +41,14 @@ module.exports = {
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio')
-  ]
+  ],
+  backdropBlur: {
+    'xs': '2px',
+    'sm': '4px',
+    'md': '8px',
+    'lg': '16px',
+    'xl': '24px',
+    '2xl': '40px',
+    '3xl': '64px',
+  }
 }

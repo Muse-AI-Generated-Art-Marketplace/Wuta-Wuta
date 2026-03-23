@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Palette, 
@@ -14,13 +14,13 @@ import { useMuseStore } from '../store/museStore';
 import { useWalletStore } from '../store/walletStore';
 import toast from 'react-hot-toast';
 
-const CreateArt = () => {
+const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
   const { createCollaborativeArtwork, aiModels, isLoading } = useMuseStore();
   const { address } = useWalletStore();
   
   // Form state
   const [formData, setFormData] = useState({
-    prompt: '',
+    prompt: currentPrompt || '',
     aiModel: 'stable-diffusion',
     humanContribution: 60,
     aiContribution: 40,
@@ -34,6 +34,23 @@ const CreateArt = () => {
   const canvasRef = useRef(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [humanInput, setHumanInput] = useState(null);
+
+  // Sync currentPrompt with formData
+  useEffect(() => {
+    if (currentPrompt !== formData.prompt) {
+      setFormData(prev => ({
+        ...prev,
+        prompt: currentPrompt || ''
+      }));
+    }
+  }, [currentPrompt]);
+
+  // Update setCurrentPrompt when formData.prompt changes
+  useEffect(() => {
+    if (setCurrentPrompt) {
+      setCurrentPrompt(formData.prompt);
+    }
+  }, [formData.prompt, setCurrentPrompt]);
   
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
