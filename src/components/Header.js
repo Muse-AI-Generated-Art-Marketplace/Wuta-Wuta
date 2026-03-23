@@ -1,58 +1,80 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Menu, Wallet, X, ExternalLink } from 'lucide-react';
+import { Menu, Wallet, X, LogOut } from 'lucide-react';
+import { Button, Badge, Avatar } from './ui';
 
 const Header = ({ onMenuClick, onConnectWallet, onDisconnectWallet, address, isConnected }) => {
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50"
+      className="bg-white/80 backdrop-blur-xl border-b border-gray-100 fixed w-full top-0 z-40 transition-all duration-300"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo and Menu */}
-          <div className="flex items-center space-x-4">
-            <button
+      <div className="max-w-[100vw] px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
+          {/* Logo and Menu toggle (mobile only) */}
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onMenuClick}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="md:hidden -ml-2 mr-2"
+              aria-label="Toggle menu"
             >
-              <Menu className="w-5 h-5 text-gray-700" />
-            </button>
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">M</span>
+              <Menu className="w-6 h-6" />
+            </Button>
+            <div className="flex items-center space-x-3 md:hidden">
+              <div className="w-9 h-9 bg-gradient-to-br from-purple-600 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-base">M</span>
               </div>
-              <h1 className="text-xl font-bold text-gray-900">Muse</h1>
+              <h1 className="text-xl font-bold text-gray-900 tracking-tight">Muse</h1>
             </div>
+            
+            {/* Desktop spacer to match sidebar width when expanded */}
+            <div className="hidden md:block w-64"></div>
           </div>
 
-          {/* Wallet Connection */}
-          <div className="flex items-center space-x-4">
+          {/* Right side tools */}
+          <div className="flex items-center space-x-3 sm:space-x-4 ml-auto">
+            {/* Network indicator */}
+            <Badge variant="success" className="hidden sm:flex">
+              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+              Testnet
+            </Badge>
+
+            {/* Wallet Connection */}
             {isConnected && address ? (
-              <div className="flex items-center space-x-3">
-                <div className="hidden sm:block">
-                  <p className="text-sm text-gray-600">Connected</p>
-                  <p className="text-sm font-mono text-gray-900">
-                    {address.slice(0, 6)}...{address.slice(-4)}
+              <div className="flex items-center space-x-2 sm:space-x-3 bg-gray-50 border border-gray-100 p-1 pr-3 rounded-full hover:bg-gray-100 transition-colors">
+                <Avatar
+                  size="sm"
+                  fallback="W"
+                  className="w-8 h-8 sm:w-10 sm:h-10"
+                />
+                <div className="flex flex-col pr-2">
+                  <p className="text-[10px] sm:text-xs text-gray-500 font-medium leading-tight">Connected</p>
+                  <p className="text-xs sm:text-sm font-mono font-bold text-gray-900 leading-tight">
+                    {address.slice(0, 4)}...{address.slice(-4)}
                   </p>
                 </div>
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={onDisconnectWallet}
-                  className="flex items-center space-x-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 ml-1"
+                  title="Disconnect"
                 >
-                  <X className="w-4 h-4" />
-                  <span className="hidden sm:inline">Disconnect</span>
-                </button>
+                  <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+                </Button>
               </div>
             ) : (
-              <button
+              <Button
+                variant="primary"
+                icon={Wallet}
                 onClick={onConnectWallet}
-                className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                className="flex items-center space-x-2 px-4 sm:px-6 py-2 sm:py-2.5 font-semibold text-sm sm:text-base"
               >
-                <Wallet className="w-4 h-4" />
-                <span>Connect Wallet</span>
-              </button>
+                Connect<span className="hidden sm:inline"> Wallet</span>
+              </Button>
             )}
           </div>
         </div>

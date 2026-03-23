@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useFlowStore } from '../store/flowStore';
+import { Card, CardHeader, CardTitle, CardContent, Badge } from './ui';
 
 const Dashboard = () => {
   const { stats, recentActivity, topProjects } = useFlowStore();
@@ -42,43 +43,42 @@ const Dashboard = () => {
   ];
 
   const StatCard = ({ title, value, change, icon: Icon, color }) => (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-2">{value}</p>
-          <div className="flex items-center mt-2">
-            {change > 0 ? (
-              <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
-            ) : (
-              <ArrowDownRight className="w-4 h-4 text-red-500 mr-1" />
-            )}
-            <span className={`text-sm ${change > 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {Math.abs(change)}%
-            </span>
-            <span className="text-sm text-gray-500 ml-1">from last month</span>
+    <Card hover>
+      <CardContent className="p-5 sm:p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs sm:text-sm font-medium text-gray-600">{title}</p>
+            <p className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 sm:mt-2">{value}</p>
+            <div className="flex flex-wrap items-center mt-1 sm:mt-2">
+              {change > 0 ? (
+                <ArrowUpRight className="w-3 h-3 sm:w-4 sm:h-4 text-green-500 mr-1" />
+              ) : (
+                <ArrowDownRight className="w-3 h-3 sm:w-4 sm:h-4 text-red-500 mr-1" />
+              )}
+              <span className={`text-xs sm:text-sm font-medium ${change > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {Math.abs(change)}%
+              </span>
+              <span className="text-xs text-gray-500 ml-1 hidden sm:inline">from last month</span>
+            </div>
+          </div>
+          <div className={`p-2.5 sm:p-3 rounded-full ${color}`}>
+            <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
         </div>
-        <div className={`p-3 rounded-full ${color}`}>
-          <Icon className="w-6 h-6 text-white" />
-        </div>
-      </div>
-    </motion.div>
+      </CardContent>
+    </Card>
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Flow Analytics Dashboard</h1>
-        <p className="text-gray-600 mt-2">Real-time insights and analytics for Web3 funding streams</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Flow Analytics Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-600 mt-2">Real-time insights and analytics for Web3 funding streams</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
           title="Total Funding"
           value="$28,450"
@@ -110,98 +110,98 @@ const Dashboard = () => {
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Funding Trend Chart */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-xl shadow-lg p-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Funding Trend</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={fundingData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Area type="monotone" dataKey="amount" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </motion.div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Funding Trend</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <div className="h-[250px] sm:h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={fundingData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" fontSize={12} tickMargin={10} />
+                  <YAxis fontSize={12} width={40} />
+                  <Tooltip />
+                  <Area type="monotone" dataKey="amount" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Contributor Distribution */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-xl shadow-lg p-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Contributor Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={contributorData}
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {contributorData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="grid grid-cols-2 gap-2 mt-4">
-            {contributorData.map((item, index) => (
-              <div key={index} className="flex items-center">
-                <div className={`w-3 h-3 rounded-full mr-2`} style={{ backgroundColor: item.color }} />
-                <span className="text-sm text-gray-600">{item.name}</span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Contributor Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={contributorData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={window.innerWidth < 640 ? 60 : 80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {contributorData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="grid grid-cols-2 gap-2 mt-4 sm:mt-6">
+              {contributorData.map((item, index) => (
+                <div key={index} className="flex items-center">
+                  <div className={`w-3 h-3 rounded-full mr-2 shrink-0`} style={{ backgroundColor: item.color }} />
+                  <span className="text-xs sm:text-sm text-gray-600 truncate">{item.name}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Recent Activity & Top Projects */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Recent Transactions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-lg p-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Transactions</h3>
-          <div className="space-y-3">
-            {recentTransactions.map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center">
-                  <div className={`w-2 h-2 rounded-full mr-3 ${
-                    transaction.type === 'funding' ? 'bg-green-500' : 'bg-blue-500'
-                  }`} />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{transaction.from}</p>
-                    <p className="text-xs text-gray-500">→ {transaction.to}</p>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Transactions</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <div className="space-y-3">
+              {recentTransactions.map((transaction) => (
+                <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="flex items-center min-w-0 mr-3">
+                    <div className={`w-2 h-2 rounded-full mr-3 shrink-0 ${
+                      transaction.type === 'funding' ? 'bg-green-500' : 'bg-blue-500'
+                    }`} />
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{transaction.from}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-500 truncate">→ {transaction.to}</p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900">{transaction.amount}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500">{transaction.time}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900">{transaction.amount}</p>
-                  <p className="text-xs text-gray-500">{transaction.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Top Projects */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-lg p-6"
-        >
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Projects</h3>
-          <div className="space-y-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Top Projects</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
             {[
               { name: 'DeFi Protocol', funding: '$12,500', contributors: 45, growth: '+23%' },
               { name: 'NFT Marketplace', funding: '$8,200', contributors: 32, growth: '+15%' },
@@ -209,19 +209,19 @@ const Dashboard = () => {
               { name: 'Web3 Gaming', funding: '$5,400', contributors: 21, growth: '+12%' },
               { name: 'Cross-chain Bridge', funding: '$4,900', contributors: 18, growth: '+5%' },
             ].map((project, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="text-sm font-medium text-gray-900">{project.name}</p>
-                  <p className="text-xs text-gray-500">{project.contributors} contributors</p>
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="min-w-0 mr-3">
+                  <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{project.name}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-500">{project.contributors} contributors</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900">{project.funding}</p>
-                  <p className="text-xs text-green-500">{project.growth}</p>
+                <div className="text-right shrink-0">
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900">{project.funding}</p>
+                  <p className="text-[10px] sm:text-xs text-green-500 font-medium">{project.growth}</p>
                 </div>
               </div>
             ))}
-          </div>
-        </motion.div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
