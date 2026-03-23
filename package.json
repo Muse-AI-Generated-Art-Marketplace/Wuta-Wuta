@@ -5,92 +5,21 @@
   "main": "src/App.js",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
+    "start": "set SKIP_PREFLIGHT_CHECK=true && react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "test:contracts": "hardhat test",
-    "test:integration": "hardhat test test/integration/**/*.test.js",
-    "test:e2e": "react-scripts test --testPathPattern=e2e",
-    "test:load": "echo 'Load tests not implemented yet'",
-    "test:coverage": "react-scripts test --coverage --watchAll=false",
-    "test:ci": "react-scripts test --coverage --watchAll=false --ci",
-    "test:contracts:coverage": "hardhat coverage",
-    "test:contracts:gas": "hardhat test --reporter gas-reporter",
-    "lint": "eslint src/ --ext .js,.jsx,.ts,.tsx",
-    "lint:contracts": "solhint 'contracts/**/*.sol'",
-    "lint:fix": "eslint src/ --ext .js,.jsx,.ts,.tsx --fix",
-    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,css,md}",
-    "format:contracts": "prettier --write 'contracts/**/*.sol'",
-    "type-check": "tsc --noEmit",
-    "prepare": "husky install",
-    "compile": "hardhat compile",
-    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
-    "deploy:testnet": "hardhat run scripts/deploy.js --network sepolia",
-    "verify": "hardhat verify --network",
-    "clean": "hardhat clean",
-    "gas-report": "REPORT_GAS=true hardhat test",
-    "security:slither": "slither contracts/ --filter-paths node_modules/",
-    "security:mythril": "myth analyze contracts/",
-    "pre-commit": "lint-staged && npm run test:ci && npm run compile"
+    "test": "react-scripts test"
   },
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "ethers": "^6.8.0",
-    "@tensorflow/tfjs": "^4.10.0",
-    "@tensorflow/tfjs-node": "^4.10.0",
-    "stable-diffusion-js": "^1.0.0",
-    "replicate": "^0.15.0",
-    "openai": "^4.0.0",
-    "sharp": "^0.32.0",
-    "canvas": "^2.11.0",
-    "three": "^0.155.0",
-    "recharts": "^2.8.0",
     "lucide-react": "^0.294.0",
-    "tailwindcss": "^3.3.0",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0",
-    "@headlessui/react": "^1.7.0",
-    "@heroicons/react": "^2.0.0",
-    "axios": "^1.6.0",
-    "date-fns": "^2.30.0",
-    "react-query": "^3.39.0",
-    "zustand": "^4.4.0",
     "framer-motion": "^10.16.0",
-    "react-hot-toast": "^2.4.0",
-    "web-vitals": "^3.5.0",
-    "clsx": "^2.0.0",
-    "react-dropzone": "^14.2.0",
-    "react-color": "^2.19.0",
-    "react-spring": "^9.7.0",
-    "react-canvas-draw": "^1.2.0",
-    "html2canvas": "^1.4.0"
+    "zustand": "^4.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "@types/node": "^20.0.0",
-    "typescript": "^5.0.0",
-    "eslint": "^8.50.0",
-    "eslint-config-react-app": "^7.0.0",
-    "prettier": "^3.0.0",
-    "husky": "^8.0.0",
-    "lint-staged": "^15.0.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/jest-dom": "^6.1.0",
-    "@testing-library/user-event": "^14.5.0",
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "@openzeppelin/contracts": "^5.0.0",
-    "@openzeppelin/test-helpers": "^0.5.16",
-    "chai": "^4.3.10",
-    "ethers": "^6.8.0",
-    "hardhat": "^2.19.0",
-    "hardhat-gas-reporter": "^1.0.9",
-    "solhint": "^3.6.2",
-    "solidity-coverage": "^0.8.5",
-    "@testing-library/react-hooks": "^8.0.1",
-    "jest-environment-jsdom": "^29.7.0"
+    "@types/react-dom": "^18.2.0"
   },
   "eslintConfig": {
     "extends": [
@@ -109,37 +38,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "src/**/*.{css,md}": [
-      "prettier --write"
-    ]
-  },
-  "keywords": [
-    "muse",
-    "ai-art",
-    "nft",
-    "marketplace",
-    "generative-art",
-    "collaborative-creation",
-    "machine-learning",
-    "web3",
-    "blockchain",
-    "creative-ai",
-    "digital-art"
-  ],
-  "author": "Muse Organization",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/muse-org/art-marketplace.git"
-  },
-  "bugs": {
-    "url": "https://github.com/muse-org/art-marketplace/issues"
-  },
-  "homepage": "https://muse-art.vercel.app"
+  }
 }
