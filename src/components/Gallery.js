@@ -88,14 +88,14 @@ const Gallery = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight mb-2">Art Gallery</h1>
-          <p className="text-sm sm:text-base text-gray-600">Explore and collect AI-human collaborative artwork</p>
+          <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Art Gallery</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Explore and collect AI-human collaborative artwork</p>
         </div>
 
         {/* Mobile Filter Toggle */}
         <button
           onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-          className="sm:hidden flex items-center justify-center space-x-2 w-full py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium shadow-sm"
+          className="sm:hidden flex items-center justify-center space-x-2 w-full py-2.5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl text-gray-700 dark:text-gray-200 font-medium shadow-sm"
         >
           <Filter className="w-4 h-4" />
           <span>{isFiltersOpen ? 'Hide Filters' : 'Show Filters'}</span>
@@ -119,37 +119,37 @@ const Gallery = () => {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm"
+          className="bg-white dark:bg-slate-800/80 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 dark:border-white/10 shadow-sm backdrop-blur-md"
         >
           <ShoppingCart className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mb-2 sm:mb-3" />
-          <p className="text-2xl sm:text-3xl font-black text-gray-900">{getActiveListings().length}</p>
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Active Listings</p>
+          <p className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">{getActiveListings().length}</p>
+          <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Active Listings</p>
         </motion.div>
         
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm"
+          className="bg-white dark:bg-slate-800/80 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 dark:border-white/10 shadow-sm backdrop-blur-md"
         >
           <DollarSign className="w-6 h-6 sm:w-8 sm:h-8 text-green-500 mb-2 sm:mb-3" />
-          <p className="text-2xl sm:text-3xl font-black text-gray-900">
+          <p className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
             {getActiveListings().reduce((sum, listing) => sum + listing.price, 0)}
           </p>
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Total Value (XLM)</p>
+          <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Total Value (XLM)</p>
         </motion.div>
         
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 shadow-sm"
+          className="bg-white dark:bg-slate-800/80 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-100 dark:border-white/10 shadow-sm backdrop-blur-md"
         >
           <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500 mb-2 sm:mb-3" />
-          <p className="text-2xl sm:text-3xl font-black text-gray-900">
+          <p className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">
             {artworks.filter(a => a.metadata?.canEvolve).length}
           </p>
-          <p className="text-xs sm:text-sm font-medium text-gray-500">Evolvable Art</p>
+          <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Evolvable Art</p>
         </motion.div>
       </div>
 
@@ -159,7 +159,7 @@ const Gallery = () => {
         animate={{ height: isFiltersOpen || window.innerWidth >= 640 ? 'auto' : 0, opacity: isFiltersOpen || window.innerWidth >= 640 ? 1 : 0 }}
         className={`overflow-hidden sm:overflow-visible transition-all duration-300 ${!isFiltersOpen && 'max-sm:hidden'}`}
       >
-        <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
+        <div className="bg-white dark:bg-slate-800/60 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 p-4 sm:p-5 backdrop-blur-xl">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* Search */}
             <div className="relative">
@@ -169,7 +169,7 @@ const Gallery = () => {
                 placeholder="Search artworks..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all placeholder-gray-400"
+                className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50 dark:bg-slate-900/50 border-transparent dark:border-white/10 rounded-lg sm:rounded-xl text-sm dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/50 transition-all placeholder-gray-400 dark:placeholder-gray-500"
               />
             </div>
 
@@ -178,7 +178,7 @@ const Gallery = () => {
               <select
                 value={filterModel}
                 onChange={(e) => setFilterModel(e.target.value)}
-                className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm text-gray-700 font-medium focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all appearance-none cursor-pointer"
+                className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 dark:bg-slate-900/50 border-transparent dark:border-white/10 rounded-lg sm:rounded-xl text-sm text-gray-700 dark:text-gray-200 font-medium focus:bg-white dark:focus:bg-slate-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/50 transition-all appearance-none cursor-pointer"
               >
                 <option value="all">All Models</option>
                 <option value="stable-diffusion">Stable Diffusion</option>
@@ -195,7 +195,7 @@ const Gallery = () => {
               <select
                 value={filterPrice}
                 onChange={(e) => setFilterPrice(e.target.value)}
-                className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm text-gray-700 font-medium focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all appearance-none cursor-pointer"
+                className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 dark:bg-slate-900/50 border-transparent dark:border-white/10 rounded-lg sm:rounded-xl text-sm text-gray-700 dark:text-gray-200 font-medium focus:bg-white dark:focus:bg-slate-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/50 transition-all appearance-none cursor-pointer"
               >
                 <option value="all">All Prices</option>
                 <option value="under-100">Under 100 XLM</option>
@@ -212,7 +212,7 @@ const Gallery = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm text-gray-700 font-medium focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all appearance-none cursor-pointer"
+                className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 dark:bg-slate-900/50 border-transparent dark:border-white/10 rounded-lg sm:rounded-xl text-sm text-gray-700 dark:text-gray-200 font-medium focus:bg-white dark:focus:bg-slate-900 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/50 transition-all appearance-none cursor-pointer"
               >
                 <option value="recent">Most Recent</option>
                 <option value="oldest">Oldest First</option>
@@ -241,28 +241,28 @@ const Gallery = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center py-16 sm:py-24 px-4 bg-white rounded-2xl shadow-sm border border-gray-100"
+          className="text-center py-16 sm:py-24 px-4 bg-white dark:bg-slate-800/50 rounded-2xl shadow-sm border border-gray-100 dark:border-white/10"
         >
-          <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <GalleryIcon className="w-10 h-10 text-gray-400" />
+          <div className="w-20 h-20 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+            <GalleryIcon className="w-10 h-10 text-gray-400 dark:text-gray-500" />
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">No artworks found</h3>
-          <p className="text-sm sm:text-base text-gray-500 max-w-md mx-auto">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">No artworks found</h3>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 max-w-md mx-auto">
             {searchTerm || filterModel !== 'all' || filterPrice !== 'all'
               ? 'Try adjusting your search or filters to find what you\'re looking for.'
               : 'Be the first to create an artwork and it will appear here!'
             }
           </p>
           {(searchTerm || filterModel !== 'all' || filterPrice !== 'all') && (
-            <button 
-              onClick={() => {
-                setSearchTerm('');
-                setFilterModel('all');
-                setFilterPrice('all');
-                setSortBy('recent');
-              }}
-              className="mt-6 px-6 py-2.5 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-100 font-semibold transition-colors"
-            >
+              <button 
+                onClick={() => {
+                  setSearchTerm('');
+                  setFilterModel('all');
+                  setFilterPrice('all');
+                  setSortBy('recent');
+                }}
+                className="mt-6 px-6 py-2.5 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl hover:bg-purple-100 dark:hover:bg-purple-900/50 font-semibold transition-colors"
+              >
               Clear Filters
             </button>
           )}

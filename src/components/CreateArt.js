@@ -148,8 +148,8 @@ const CreateArt = () => {
     <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight mb-2">Create AI-Human Art</h1>
-          <p className="text-sm sm:text-base text-gray-600">Collaborate with AI to create unique digital artwork</p>
+          <h1 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Create AI-Human Art</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Collaborate with AI to create unique digital artwork</p>
         </div>
       </div>
       
@@ -161,13 +161,13 @@ const CreateArt = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6"
+            className="bg-white dark:bg-slate-800/80 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 p-5 sm:p-6 backdrop-blur-xl"
           >
             <div className="flex items-center mb-4 sm:mb-5">
-              <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center mr-3">
-                <Zap className="w-4 h-4 text-purple-600" />
+              <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center mr-3">
+                <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900">AI Model</h3>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">AI Model</h3>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -177,8 +177,8 @@ const CreateArt = () => {
                   onClick={() => handleInputChange('aiModel', model.id)}
                   className={`p-4 rounded-xl border-2 transition-all text-left flex flex-col ${
                     formData.aiModel === model.id
-                      ? 'border-purple-500 bg-purple-50/50 shadow-sm'
-                      : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
+                      ? 'border-purple-500 bg-purple-50/50 dark:bg-purple-900/20 shadow-sm'
+                      : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-slate-700/50'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2 w-full">
@@ -191,8 +191,8 @@ const CreateArt = () => {
                       <div className="w-2 h-2 rounded-full bg-purple-500"></div>
                     )}
                   </div>
-                  <div className={`text-sm font-bold ${formData.aiModel === model.id ? 'text-purple-900' : 'text-gray-700'}`}>{model.name}</div>
-                  <div className="text-xs text-gray-500 mt-1 line-clamp-1">{model.description || 'Advanced generation model'}</div>
+                  <div className={`text-sm font-bold ${formData.aiModel === model.id ? 'text-purple-900 dark:text-purple-300' : 'text-gray-700 dark:text-gray-300'}`}>{model.name}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">{model.description || 'Advanced generation model'}</div>
                 </button>
               ))}
             </div>
@@ -203,20 +203,20 @@ const CreateArt = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6"
+            className="bg-white dark:bg-slate-800/80 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 p-5 sm:p-6 backdrop-blur-xl"
           >
             <div className="flex items-center mb-4 sm:mb-5">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center mr-3">
-                <Type className="w-4 h-4 text-blue-600" />
+              <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center mr-3">
+                <Type className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900">Art Prompt</h3>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Art Prompt</h3>
             </div>
             
             <textarea
               value={formData.prompt}
               onChange={(e) => handleInputChange('prompt', e.target.value)}
               placeholder="Describe your artwork in detail... (e.g., 'A futuristic cyberpunk city with neon lights and flying cars at night')"
-              className="w-full p-4 bg-gray-50 border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-all resize-none text-sm sm:text-base min-h-[120px]"
+              className="w-full p-4 bg-gray-50 dark:bg-slate-900/50 border-transparent dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/50 focus:border-purple-500 placeholder-gray-400 dark:placeholder-gray-500 transition-all resize-none text-sm sm:text-base min-h-[120px]"
             />
             
             <div className="mt-4 flex flex-wrap gap-2">
@@ -226,7 +226,7 @@ const CreateArt = () => {
                   onClick={() => handleInputChange('prompt', 
                     formData.prompt ? `${formData.prompt}, ${style.toLowerCase()} style` : `${style.toLowerCase()} style`
                   )}
-                  className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 rounded-lg text-xs font-semibold transition-colors"
+                  className="px-3 py-1.5 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg text-xs font-semibold transition-colors"
                 >
                   +{style}
                 </button>
@@ -239,16 +239,16 @@ const CreateArt = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6"
+            className="bg-white dark:bg-slate-800/80 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 p-5 sm:p-6 backdrop-blur-md"
           >
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center mr-3">
-                  <Sliders className="w-4 h-4 text-indigo-600" />
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mr-3">
+                  <Sliders className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900">Collaboration Split</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Collaboration Split</h3>
               </div>
-              <div className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 text-gray-600">
+              <div className="text-xs font-bold px-2.5 py-1 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300">
                 {formData.humanContribution}% / {formData.aiContribution}%
               </div>
             </div>
@@ -256,7 +256,7 @@ const CreateArt = () => {
             <div className="space-y-6">
               <div className="relative pt-1">
                 {/* Custom track showing both colors */}
-                <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden flex absolute top-[50%] -translate-y-1/2 pointer-events-none">
+                <div className="h-2 w-full bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden flex absolute top-[50%] -translate-y-1/2 pointer-events-none">
                   <div className="h-full bg-purple-500" style={{ width: `${formData.humanContribution}%` }}></div>
                   <div className="h-full bg-blue-500" style={{ width: `${formData.aiContribution}%` }}></div>
                 </div>
@@ -275,10 +275,10 @@ const CreateArt = () => {
               <div className="flex justify-between text-sm">
                 <div className="flex items-center">
                   <div className="w-3 h-3 rounded-full bg-purple-500 mr-2"></div>
-                  <span className="font-semibold text-gray-700">Human Control</span>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300">Human Control</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="font-semibold text-gray-700 mr-2">AI Freedom</span>
+                  <span className="font-semibold text-gray-700 dark:text-gray-300 mr-2">AI Freedom</span>
                   <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                 </div>
               </div>
@@ -290,22 +290,22 @@ const CreateArt = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6"
+            className="bg-white dark:bg-slate-800/80 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 p-5 sm:p-6 backdrop-blur-md"
           >
             <div className="flex items-center mb-4 sm:mb-5">
-              <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center mr-3">
-                <Settings className="w-4 h-4 text-gray-600" />
+              <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center mr-3">
+                <Settings className="w-4 h-4 text-gray-600 dark:text-gray-400" />
               </div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900">Advanced Settings</h3>
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Advanced Settings</h3>
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Art Style</label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Art Style</label>
                 <select
                   value={formData.style}
                   onChange={(e) => handleInputChange('style', e.target.value)}
-                  className="w-full p-3 bg-gray-50 border-transparent rounded-xl text-sm font-medium text-gray-700 focus:bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-all appearance-none cursor-pointer"
+                  className="w-full p-3 bg-gray-50 dark:bg-slate-900/50 border-transparent dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/50 focus:border-purple-500 transition-all appearance-none cursor-pointer"
                 >
                   <option value="realistic">Realistic</option>
                   <option value="abstract">Abstract</option>
@@ -315,11 +315,11 @@ const CreateArt = () => {
               </div>
               
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Aspect Ratio</label>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Aspect Ratio</label>
                 <select
                   value={formData.aspectRatio}
                   onChange={(e) => handleInputChange('aspectRatio', e.target.value)}
-                  className="w-full p-3 bg-gray-50 border-transparent rounded-xl text-sm font-medium text-gray-700 focus:bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-all appearance-none cursor-pointer"
+                  className="w-full p-3 bg-gray-50 dark:bg-slate-900/50 border-transparent dark:border-white/10 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-purple-200 dark:focus:ring-purple-900/50 focus:border-purple-500 transition-all appearance-none cursor-pointer"
                 >
                   <option value="1:1">Square (1:1)</option>
                   <option value="16:9">Landscape (16:9)</option>
@@ -329,16 +329,16 @@ const CreateArt = () => {
               </div>
               
               <div className="sm:col-span-2 mt-2">
-                <label className="flex items-center p-3 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                <label className="flex items-center p-3 bg-gray-50 dark:bg-slate-900/30 rounded-xl cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800/50 transition-colors">
                   <input
                     type="checkbox"
                     checked={formData.canEvolve}
                     onChange={(e) => handleInputChange('canEvolve', e.target.checked)}
-                    className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 bg-white"
+                    className="w-5 h-5 text-purple-600 border-gray-300 dark:border-slate-600 rounded focus:ring-purple-500 dark:focus:ring-purple-900/50 bg-white dark:bg-slate-800"
                   />
                   <div className="ml-3">
-                    <span className="block text-sm font-bold text-gray-900">Allow Evolution</span>
-                    <span className="block text-xs text-gray-500">Let other users build upon your artwork</span>
+                    <span className="block text-sm font-bold text-gray-900 dark:text-white">Allow Evolution</span>
+                    <span className="block text-xs text-gray-500 dark:text-gray-400">Let other users build upon your artwork</span>
                   </div>
                 </label>
               </div>
@@ -352,14 +352,14 @@ const CreateArt = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6 sticky top-24"
+            className="bg-white dark:bg-slate-800/80 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 dark:border-white/10 p-5 sm:p-6 sticky top-24 backdrop-blur-xl"
           >
             <div className="flex items-center justify-between mb-4 sm:mb-5">
               <div className="flex items-center">
-                <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center mr-3">
-                  <Palette className="w-4 h-4 text-pink-600" />
+                <div className="w-8 h-8 rounded-lg bg-pink-50 dark:bg-pink-900/30 flex items-center justify-center mr-3">
+                  <Palette className="w-4 h-4 text-pink-600 dark:text-pink-400" />
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900">Sketch Pad</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">Sketch Pad</h3>
               </div>
               {humanInput && (
                 <button
@@ -371,12 +371,12 @@ const CreateArt = () => {
               )}
             </div>
             
-            <div className="relative aspect-square w-full rounded-xl overflow-hidden border-2 border-gray-100 bg-gray-50">
+            <div className="relative aspect-square w-full rounded-xl overflow-hidden border-2 border-gray-100 dark:border-white/10 bg-white dark:bg-slate-900">
               <canvas
                 ref={canvasRef}
                 width={400}
                 height={400}
-                className="w-full h-full cursor-crosshair touch-none bg-white"
+                className="w-full h-full cursor-crosshair touch-none bg-white dark:bg-slate-900"
                 onMouseDown={startDrawing}
                 onMouseMove={handleCanvasDraw}
                 onMouseUp={stopDrawing}

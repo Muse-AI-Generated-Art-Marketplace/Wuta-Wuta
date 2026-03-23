@@ -30,11 +30,11 @@ const Card = React.forwardRef(({
   };
   
   const glassClasses = glass 
-    ? 'bg-white/80 backdrop-blur-xl border border-white/20' 
-    : 'bg-white border border-gray-100';
+    ? 'bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-white/10' 
+    : 'bg-white dark:bg-slate-800 border border-gray-100 dark:border-white/10';
   
   const hoverClasses = hover 
-    ? 'hover:shadow-xl hover:scale-[1.02] cursor-pointer' 
+    ? 'hover:shadow-xl hover:scale-[1.02] cursor-pointer dark:hover:shadow-slate-900/50' 
     : '';
   
   const classes = `${baseClasses} ${glassClasses} ${paddingClasses[padding]} ${shadowClasses[shadow]} ${hoverClasses} ${className}`;
@@ -65,7 +65,7 @@ export const CardHeader = React.forwardRef(({ children, className = '', ...props
 CardHeader.displayName = 'CardHeader';
 
 export const CardTitle = React.forwardRef(({ children, className = '', ...props }, ref) => (
-  <h3 ref={ref} className={`text-xl font-bold text-gray-900 ${className}`} {...props}>
+  <h3 ref={ref} className={`text-xl font-bold text-gray-900 dark:text-white ${className}`} {...props}>
     {children}
   </h3>
 ));
@@ -73,7 +73,7 @@ export const CardTitle = React.forwardRef(({ children, className = '', ...props 
 CardTitle.displayName = 'CardTitle';
 
 export const CardDescription = React.forwardRef(({ children, className = '', ...props }, ref) => (
-  <p ref={ref} className={`text-gray-600 text-sm mt-1 ${className}`} {...props}>
+  <p ref={ref} className={`text-gray-600 dark:text-gray-400 text-sm mt-1 ${className}`} {...props}>
     {children}
   </p>
 ));
@@ -89,7 +89,7 @@ export const CardContent = React.forwardRef(({ children, className = '', ...prop
 CardContent.displayName = 'CardContent';
 
 export const CardFooter = React.forwardRef(({ children, className = '', ...props }, ref) => (
-  <div ref={ref} className={`mt-4 pt-4 border-t border-gray-100 ${className}`} {...props}>
+  <div ref={ref} className={`mt-4 pt-4 border-t border-gray-100 dark:border-white/10 ${className}`} {...props}>
     {children}
   </div>
 ));
