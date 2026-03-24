@@ -73,8 +73,8 @@ const Dashboard = () => {
     <div className="space-y-6 px-4 sm:px-6 lg:px-8 py-8 max-w-7xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Flow Analytics Dashboard</h1>
-        <p className="text-sm sm:text-base text-gray-600 mt-2">Real-time insights and analytics for Web3 funding streams</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">Flow Analytics Dashboard</h1>
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-2">Real-time insights and analytics for Web3 funding streams</p>
       </div>
 
       {/* Stats Grid */}
@@ -158,7 +158,7 @@ const Dashboard = () => {
               {contributorData.map((item, index) => (
                 <div key={index} className="flex items-center">
                   <div className={`w-3 h-3 rounded-full mr-2 shrink-0`} style={{ backgroundColor: item.color }} />
-                  <span className="text-xs sm:text-sm text-gray-600 truncate">{item.name}</span>
+                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 truncate">{item.name}</span>
                 </div>
               ))}
             </div>
@@ -176,19 +176,19 @@ const Dashboard = () => {
           <CardContent className="p-4 sm:p-6">
             <div className="space-y-3">
               {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div key={transaction.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700/50 transition-colors border dark:border-white/5">
                   <div className="flex items-center min-w-0 mr-3">
                     <div className={`w-2 h-2 rounded-full mr-3 shrink-0 ${
                       transaction.type === 'funding' ? 'bg-green-500' : 'bg-blue-500'
                     }`} />
                     <div className="min-w-0">
-                      <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{transaction.from}</p>
-                      <p className="text-[10px] sm:text-xs text-gray-500 truncate">→ {transaction.to}</p>
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-200 truncate">{transaction.from}</p>
+                      <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">→ {transaction.to}</p>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-xs sm:text-sm font-semibold text-gray-900">{transaction.amount}</p>
-                    <p className="text-[10px] sm:text-xs text-gray-500">{transaction.time}</p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{transaction.amount}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">{transaction.time}</p>
                   </div>
                 </div>
               ))}
@@ -209,13 +209,13 @@ const Dashboard = () => {
               { name: 'Web3 Gaming', funding: '$5,400', contributors: 21, growth: '+12%' },
               { name: 'Cross-chain Bridge', funding: '$4,900', contributors: 18, growth: '+5%' },
             ].map((project, index) => (
-              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700/50 transition-colors border dark:border-white/5">
                 <div className="min-w-0 mr-3">
-                  <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">{project.name}</p>
-                  <p className="text-[10px] sm:text-xs text-gray-500">{project.contributors} contributors</p>
+                  <p className="text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-200 truncate">{project.name}</p>
+                  <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">{project.contributors} contributors</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-xs sm:text-sm font-semibold text-gray-900">{project.funding}</p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{project.funding}</p>
                   <p className="text-[10px] sm:text-xs text-green-500 font-medium">{project.growth}</p>
                 </div>
               </div>

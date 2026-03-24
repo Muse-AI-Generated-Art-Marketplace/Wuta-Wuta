@@ -161,7 +161,7 @@ const TransactionHistory = () => {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl shadow-lg p-6 mb-8"
+        className="bg-white dark:bg-slate-800/80 backdrop-blur-xl rounded-xl shadow-lg border border-transparent dark:border-white/10 p-6 mb-8"
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
@@ -172,7 +172,7 @@ const TransactionHistory = () => {
               placeholder="Search transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900/50 border border-gray-300 dark:border-white/10 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
 
@@ -180,7 +180,7 @@ const TransactionHistory = () => {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+            className="w-full p-2 bg-white dark:bg-slate-900/50 border border-gray-300 dark:border-white/10 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-purple-500"
           >
             <option value="all">All Status</option>
             <option value="success">Successful</option>
@@ -205,13 +205,13 @@ const TransactionHistory = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-lg shadow p-4"
+          className="bg-white dark:bg-slate-800/80 rounded-lg shadow-sm border border-transparent dark:border-white/10 p-4"
         >
           <div className="flex items-center">
             <Activity className="w-8 h-8 text-purple-600 mr-3" />
             <div>
-              <p className="text-2xl font-bold text-gray-900">{filteredTransactions.length}</p>
-              <p className="text-sm text-gray-600">Total Transactions</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{filteredTransactions.length}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Transactions</p>
             </div>
           </div>
         </motion.div>
@@ -220,15 +220,15 @@ const TransactionHistory = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white rounded-lg shadow p-4"
+          className="bg-white dark:bg-slate-800/80 rounded-lg shadow-sm border border-transparent dark:border-white/10 p-4"
         >
           <div className="flex items-center">
             <ArrowUpRight className="w-8 h-8 text-green-600 mr-3" />
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {filteredTransactions.filter(tx => tx.status === 'success').length}
               </p>
-              <p className="text-sm text-gray-600">Successful</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Successful</p>
             </div>
           </div>
         </motion.div>
@@ -237,15 +237,15 @@ const TransactionHistory = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-lg shadow p-4"
+          className="bg-white dark:bg-slate-800/80 rounded-lg shadow-sm border border-transparent dark:border-white/10 p-4"
         >
           <div className="flex items-center">
             <XLM className="w-8 h-8 text-blue-600 mr-3" />
             <div>
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {filteredTransactions.reduce((sum, tx) => sum + (parseFloat(tx.fee) || 0), 0).toFixed(2)}
               </p>
-              <p className="text-sm text-gray-600">Total Fees (XLM)</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Total Fees (XLM)</p>
             </div>
           </div>
         </motion.div>
@@ -254,13 +254,13 @@ const TransactionHistory = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-lg shadow p-4"
+          className="bg-white dark:bg-slate-800/80 rounded-lg shadow-sm border border-transparent dark:border-white/10 p-4"
         >
           <div className="flex items-center">
             <Calendar className="w-8 h-8 text-orange-600 mr-3" />
             <div>
-              <p className="text-2xl font-bold text-gray-900">{page}</p>
-              <p className="text-sm text-gray-600">Current Page</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">{page}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Current Page</p>
             </div>
           </div>
         </motion.div>
@@ -270,7 +270,7 @@ const TransactionHistory = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl shadow-lg overflow-hidden"
+        className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-transparent dark:border-white/10 overflow-hidden"
       >
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -291,7 +291,7 @@ const TransactionHistory = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-gray-50 dark:bg-slate-900/50 border-b dark:border-white/10">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Type
@@ -313,14 +313,14 @@ const TransactionHistory = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-white/10">
                 {filteredTransactions.map((tx, index) => (
                   <motion.tr
                     key={tx.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="hover:bg-gray-50"
+                    className="hover:bg-gray-50 dark:hover:bg-slate-700/50"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -332,20 +332,20 @@ const TransactionHistory = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
-                        <div className="text-sm text-gray-900 font-mono">
+                        <div className="text-sm text-gray-900 dark:text-gray-200 font-mono">
                           {tx.hash.slice(0, 8)}...{tx.hash.slice(-8)}
                         </div>
                         <CopyButton text={tx.hash} />
                       </div>
                       {tx.memo && (
-                        <div className="text-xs text-gray-500 mt-1">Memo: {tx.memo}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Memo: {tx.memo}</div>
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-gray-900 dark:text-gray-200">
                         {formatAmount(tx.amount)}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
                         Fee: {parseFloat(tx.fee).toFixed(2)} XLM
                       </div>
                     </td>
@@ -375,15 +375,15 @@ const TransactionHistory = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="bg-gray-50 px-6 py-3 border-t flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+          <div className="bg-gray-50 dark:bg-slate-900/50 px-6 py-3 border-t dark:border-white/10 flex items-center justify-between">
+            <div className="text-sm text-gray-700 dark:text-gray-300">
               Page {page} of {totalPages}
             </div>
             <div className="flex space-x-2">
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                className="px-3 py-1 text-sm bg-white dark:bg-slate-800 border border-gray-300 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50"
               >
                 Previous
               </button>
