@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { SorobanRpc } from '@sorobanrpc';
 import { Keypair, Horizon } from '@stellar/stellar-sdk';
-import { useTransactionNotificationStore } from './transactionNotificationStore';
 
 const useMuseStore = create((set, get) => ({
   // State
@@ -228,21 +227,6 @@ const useMuseStore = create((set, get) => ({
         timestamp: Date.now(),
       };
       
-      // Generate transaction ID for tracking
-      const transactionId = `artwork-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Add transaction to notification system
-      const notificationStore = useTransactionNotificationStore.getState();
-      notificationStore.addTransaction({
-        id: transactionId,
-        type: 'NFT Mint',
-        details: {
-          prompt: params.prompt,
-          aiModel: params.aiModel,
-          userAddress
-        }
-      });
-      
       // Call smart contract to mint NFT
       const mintTx = await stellarClient.sendTransaction(
         new SorobanRpc.TransactionBuilder(userAddress, {
@@ -264,13 +248,6 @@ const useMuseStore = create((set, get) => ({
         .build()
       );
       
-      // Update transaction with hash
-      if (mintTx.hash) {
-        notificationStore.updateTransactionStatus(transactionId, notificationStore.STATUS.PENDING, {
-          hash: mintTx.hash
-        });
-      }
-      
       // Generate AI artwork (in real implementation)
       const aiGeneratedImage = await get().generateArtwork(params);
       
@@ -282,7 +259,6 @@ const useMuseStore = create((set, get) => ({
         metadata,
         owner: userAddress,
         createdAt: new Date().toISOString(),
-        transactionId,
       };
       
       set(state => ({
@@ -294,21 +270,6 @@ const useMuseStore = create((set, get) => ({
       
     } catch (error) {
       console.error('Failed to create artwork:', error);
-      
-      // Update transaction status to failed
-      const notificationStore = useTransactionNotificationStore.getState();
-      const pendingTransactions = notificationStore.getPendingTransactions();
-      const relevantTransaction = pendingTransactions.find(tx => 
-        tx.type === 'NFT Mint' && 
-        tx.details.prompt === params.prompt
-      );
-      
-      if (relevantTransaction) {
-        notificationStore.updateTransactionStatus(relevantTransaction.id, notificationStore.STATUS.FAILED, {
-          error: error.message
-        });
-      }
-      
       set({ 
         error: error.message, 
         isLoading: false 
@@ -344,22 +305,6 @@ const useMuseStore = create((set, get) => ({
       const { stellarClient, contracts, userAddress } = get();
       if (!stellarClient || !userAddress) throw new Error('Not connected to Stellar');
       
-      // Generate transaction ID for tracking
-      const transactionId = `listing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Add transaction to notification system
-      const notificationStore = useTransactionNotificationStore.getState();
-      notificationStore.addTransaction({
-        id: transactionId,
-        type: 'NFT Listing',
-        details: {
-          tokenId,
-          price,
-          duration,
-          userAddress
-        }
-      });
-      
       const listTx = await stellarClient.sendTransaction(
         new SorobanRpc.TransactionBuilder(userAddress, {
           fee: 100,
@@ -380,13 +325,6 @@ const useMuseStore = create((set, get) => ({
         .build()
       );
       
-      // Update transaction with hash
-      if (listTx.hash) {
-        notificationStore.updateTransactionStatus(transactionId, notificationStore.STATUS.PENDING, {
-          hash: listTx.hash
-        });
-      }
-      
       // Update local state
       const newListing = {
         id: Date.now().toString(),
@@ -396,7 +334,6 @@ const useMuseStore = create((set, get) => ({
         duration,
         expires: Date.now() + duration * 1000,
         active: true,
-        transactionId,
       };
       
       set(state => ({
@@ -408,21 +345,6 @@ const useMuseStore = create((set, get) => ({
       
     } catch (error) {
       console.error('Failed to list artwork:', error);
-      
-      // Update transaction status to failed
-      const notificationStore = useTransactionNotificationStore.getState();
-      const pendingTransactions = notificationStore.getPendingTransactions();
-      const relevantTransaction = pendingTransactions.find(tx => 
-        tx.type === 'NFT Listing' && 
-        tx.details.tokenId === tokenId
-      );
-      
-      if (relevantTransaction) {
-        notificationStore.updateTransactionStatus(relevantTransaction.id, notificationStore.STATUS.FAILED, {
-          error: error.message
-        });
-      }
-      
       set({ 
         error: error.message, 
         isLoading: false 
@@ -437,21 +359,6 @@ const useMuseStore = create((set, get) => ({
       
       const { stellarClient, contracts, userAddress } = get();
       if (!stellarClient || !userAddress) throw new Error('Not connected to Stellar');
-      
-      // Generate transaction ID for tracking
-      const transactionId = `purchase-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Add transaction to notification system
-      const notificationStore = useTransactionNotificationStore.getState();
-      notificationStore.addTransaction({
-        id: transactionId,
-        type: 'NFT Purchase',
-        details: {
-          tokenId,
-          amount,
-          userAddress
-        }
-      });
       
       const buyTx = await stellarClient.sendTransaction(
         new SorobanRpc.TransactionBuilder(userAddress, {
@@ -472,13 +379,6 @@ const useMuseStore = create((set, get) => ({
         .build()
       );
       
-      // Update transaction with hash
-      if (buyTx.hash) {
-        notificationStore.updateTransactionStatus(transactionId, notificationStore.STATUS.PENDING, {
-          hash: buyTx.hash
-        });
-      }
-      
       // Update local state
       set(state => ({
         listings: state.listings.filter(listing => listing.tokenId !== tokenId),
@@ -489,21 +389,6 @@ const useMuseStore = create((set, get) => ({
       
     } catch (error) {
       console.error('Failed to buy artwork:', error);
-      
-      // Update transaction status to failed
-      const notificationStore = useTransactionNotificationStore.getState();
-      const pendingTransactions = notificationStore.getPendingTransactions();
-      const relevantTransaction = pendingTransactions.find(tx => 
-        tx.type === 'NFT Purchase' && 
-        tx.details.tokenId === tokenId
-      );
-      
-      if (relevantTransaction) {
-        notificationStore.updateTransactionStatus(relevantTransaction.id, notificationStore.STATUS.FAILED, {
-          error: error.message
-        });
-      }
-      
       set({ 
         error: error.message, 
         isLoading: false 
