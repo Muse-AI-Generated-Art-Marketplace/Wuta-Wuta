@@ -14,21 +14,12 @@ import {
 } from 'lucide-react';
 import { useMuseStore } from '../store/museStore';
 import { useWalletStore } from '../store/walletStore';
-import { useTransactionNotificationStore } from '../store/transactionNotificationStore';
 import toast from 'react-hot-toast';
 import CopyButton from './CopyButton';
-import TransactionStatusIndicator from './ui/TransactionStatusIndicator';
 
 const TransactionHistory = () => {
   const { userAddress, fetchWutaWutaTransactions } = useMuseStore();
   const { address } = useWalletStore();
-  const { 
-    getPendingTransactions, 
-    getTransactionsByStatus,
-    getTransaction,
-    clearTransaction,
-    STATUS 
-  } = useTransactionNotificationStore();
   
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +28,6 @@ const TransactionHistory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [showRealTime, setShowRealTime] = useState(true);
 
   // Horizon API configuration
   const HORIZON_URL = process.env.REACT_APP_HORIZON_URL || 'https://horizon-testnet.stellar.org';
@@ -48,91 +38,6 @@ const TransactionHistory = () => {
       loadTransactions();
     }
   }, [address, page, filter]);
-
-  // Listen for real-time transaction updates
-  useEffect(() => {
-    if (!showRealTime) return;
-
-    const interval = setInterval(() => {
-      updateTransactionsWithRealTimeData();
-    }, 3000); // Update every 3 seconds
-
-    return () => clearInterval(interval);
-  }, [showRealTime, address]);
-
-  const updateTransactionsWithRealTimeData = () => {
-    const pendingTransactions = getPendingTransactions();
-    const confirmedTransactions = getTransactionsByStatus(STATUS.CONFIRMED);
-    const failedTransactions = getTransactionsByStatus(STATUS.FAILED);
-
-    setTransactions(prevTransactions => {
-      const updatedTransactions = [...prevTransactions];
-      
-      // Update existing transactions with real-time data
-      pendingTransactions.forEach(pendingTx => {
-        const existingIndex = updatedTransactions.findIndex(tx => 
-          tx.hash === pendingTx.hash || 
-          (pendingTx.hash && tx.hash?.includes(pendingTx.hash.slice(0, 8)))
-        );
-        
-        if (existingIndex === -1 && pendingTx.hash) {
-          // Add new pending transaction
-          updatedTransactions.unshift({
-            id: pendingTx.id,
-            hash: pendingTx.hash,
-            type: pendingTx.type,
-            status: 'pending',
-            createdAt: pendingTx.createdAt,
-            amount: null,
-            fee: '0.00001',
-            memo: '',
-            isRealTime: true
-          });
-        } else if (existingIndex !== -1) {
-          // Update existing transaction status
-          updatedTransactions[existingIndex] = {
-            ...updatedTransactions[existingIndex],
-            status: 'pending',
-            isRealTime: true
-          };
-        }
-      });
-
-      // Update confirmed transactions
-      confirmedTransactions.forEach(confirmedTx => {
-        const existingIndex = updatedTransactions.findIndex(tx => 
-          tx.hash === confirmedTx.hash || 
-          (confirmedTx.hash && tx.hash?.includes(confirmedTx.hash.slice(0, 8)))
-        );
-        
-        if (existingIndex !== -1) {
-          updatedTransactions[existingIndex] = {
-            ...updatedTransactions[existingIndex],
-            status: 'success',
-            isRealTime: true
-          };
-        }
-      });
-
-      // Update failed transactions
-      failedTransactions.forEach(failedTx => {
-        const existingIndex = updatedTransactions.findIndex(tx => 
-          tx.hash === failedTx.hash || 
-          (failedTx.hash && tx.hash?.includes(failedTx.hash.slice(0, 8)))
-        );
-        
-        if (existingIndex !== -1) {
-          updatedTransactions[existingIndex] = {
-            ...updatedTransactions[existingIndex],
-            status: 'failed',
-            isRealTime: true
-          };
-        }
-      });
-
-      return updatedTransactions;
-    });
-  };
 
   const loadTransactions = async () => {
     if (!address) {
@@ -258,7 +163,7 @@ const TransactionHistory = () => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-white rounded-xl shadow-lg p-6 mb-8"
       >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -280,21 +185,7 @@ const TransactionHistory = () => {
             <option value="all">All Status</option>
             <option value="success">Successful</option>
             <option value="failed">Failed</option>
-            <option value="pending">Pending</option>
           </select>
-
-          {/* Real-time Toggle */}
-          <button
-            onClick={() => setShowRealTime(!showRealTime)}
-            className={`flex items-center justify-center px-4 py-2 rounded-lg transition-colors ${
-              showRealTime 
-                ? 'bg-green-600 text-white hover:bg-green-700' 
-                : 'bg-gray-600 text-white hover:bg-gray-700'
-            }`}
-          >
-            <Activity className="w-4 h-4 mr-2" />
-            {showRealTime ? 'Live' : 'Offline'}
-          </button>
 
           {/* Refresh Button */}
           <button
@@ -459,22 +350,9 @@ const TransactionHistory = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {tx.isRealTime ? (
-                        <div className="flex items-center gap-2">
-                          <TransactionStatusIndicator 
-                            transactionId={tx.id} 
-                            size="sm" 
-                            showText={true}
-                          />
-                          {tx.status === 'pending' && (
-                            <RefreshCw className="w-3 h-3 text-blue-500 animate-spin" />
-                          )}
-                        </div>
-                      ) : (
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(tx.status)}`}>
-                          {tx.status}
-                        </span>
-                      )}
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(tx.status)}`}>
+                        {tx.status}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {formatDate(tx.createdAt)}

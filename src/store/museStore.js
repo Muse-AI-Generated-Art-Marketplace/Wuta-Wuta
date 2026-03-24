@@ -1,16 +1,6 @@
 import { create } from 'zustand';
-import {
-  Server,
-  Keypair,
-  TransactionBuilder,
-  Operation,
-  Networks,
-  Asset,
-  Contract,
-  SorobanRpc
-} from '@stellar/stellar-sdk';
-
-import { useTransactionNotificationStore } from './transactionNotificationStore';
+import { SorobanRpc } from '@sorobanrpc';
+import { Keypair, Horizon } from '@stellar/stellar-sdk';
 
 const useMuseStore = create((set, get) => ({
   // State
@@ -112,43 +102,51 @@ const useMuseStore = create((set, get) => ({
         canEvolve: params.canEvolve,
         timestamp: Date.now(),
       };
-
-      const transactionId = `artwork-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-
+      
+      // Generate transaction ID for tracking
+      const transactionId = `artwork-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Add transaction to notification system
       const notificationStore = useTransactionNotificationStore.getState();
       notificationStore.addTransaction({
         id: transactionId,
         type: 'NFT Mint',
-        details: { prompt: params.prompt, aiModel: params.aiModel, userAddress }
+        details: {
+          prompt: params.prompt,
+          aiModel: params.aiModel,
+          userAddress
+        }
       });
-
-      // Build Soroban transaction
-      const tx = new TransactionBuilder(userAddress, {
-        fee: 100,
-        networkPassphrase: get().network
-      })
-        .addOperation(Operation.invokeHostFunction({
-          contract: new Contract(contracts.artAssetToken),
-          functionName: 'mint',
-          args: [
-            userAddress,
-            1,
-            JSON.stringify(metadata),
-            params.contentHash || '0x0000000000000000000000000000000000000000'
-          ]
-        }))
-        .setTimeout(30)
-        .build();
-
-      const signedTx = tx.sign(get().userKeypair); // Sign transaction
-      const txResult = await stellarClient.sendTransaction(signedTx); // Send to Soroban RPC
-
-      if (txResult.hash) {
+      
+      // Call smart contract to mint NFT
+      const mintTx = await stellarClient.sendTransaction(
+        new SorobanRpc.TransactionBuilder(userAddress, {
+          fee: 100,
+          networkPassphrase: get().network,
+        })
+        .addOperation(
+          new SorobanRpc.Operation.invokeHostFunction({
+            contract: new SorobanRpc.Contract(contracts.artAssetToken),
+            functionName: 'mint',
+            args: [
+              new SorobanRpc.Address(userAddress),
+              1, // Amount for NFT
+              JSON.stringify(metadata),
+              params.contentHash || '0x0000000000000000000000000000000000000000',
+            ],
+          })
+        )
+        .build()
+      );
+      
+      // Update transaction with hash
+      if (mintTx.hash) {
         notificationStore.updateTransactionStatus(transactionId, notificationStore.STATUS.PENDING, {
-          hash: txResult.hash
+          hash: mintTx.hash
         });
       }
-
+      
+      // Generate AI artwork (in real implementation)
       const aiGeneratedImage = await get().generateArtwork(params);
 
       const newArtwork = {
@@ -158,7 +156,6 @@ const useMuseStore = create((set, get) => ({
         metadata,
         owner: userAddress,
         createdAt: new Date().toISOString(),
-        transactionId,
       };
 
       set(state => ({ artworks: [...state.artworks, newArtwork], isLoading: false }));
@@ -166,20 +163,267 @@ const useMuseStore = create((set, get) => ({
       return newArtwork;
     } catch (error) {
       console.error('Failed to create artwork:', error);
-      set({ error: error.message, isLoading: false });
+      
+      // Update transaction status to failed
+      const notificationStore = useTransactionNotificationStore.getState();
+      const pendingTransactions = notificationStore.getPendingTransactions();
+      const relevantTransaction = pendingTransactions.find(tx => 
+        tx.type === 'NFT Mint' && 
+        tx.details.prompt === params.prompt
+      );
+      
+      if (relevantTransaction) {
+        notificationStore.updateTransactionStatus(relevantTransaction.id, notificationStore.STATUS.FAILED, {
+          error: error.message
+        });
+      }
+      
+      set({ 
+        error: error.message, 
+        isLoading: false 
+      });
       throw error;
     }
   },
 
   generateArtwork: async (params) => {
-    const aiModels = {
-      'stable-diffusion': 'https://api.muse.art/generated/stable-diffusion.jpg',
-      'dall-e-3': 'https://api.muse.art/generated/dall-e-3.jpg',
-      'midjourney': 'https://api.muse.art/generated/midjourney.jpg',
-    };
-    return aiModels[params.aiModel] || aiModels['stable-diffusion'];
+    try {
+      // In real implementation, this would call AI APIs
+      // For now, return a placeholder
+      const aiModels = {
+        'stable-diffusion': 'https://api.muse.art/generated/stable-diffusion.jpg',
+        'dall-e-3': 'https://api.muse.art/generated/dall-e-3.jpg',
+        'midjourney': 'https://api.muse.art/generated/midjourney.jpg',
+      };
+      
+      return aiModels[params.aiModel] || aiModels['stable-diffusion'];
+      
+    } catch (error) {
+      console.error('Failed to generate artwork:', error);
+      throw error;
+    }
   },
-
+  
+  // Marketplace functions
+  listArtwork: async (tokenId, price, duration) => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      const { stellarClient, contracts, userAddress } = get();
+      if (!stellarClient || !userAddress) throw new Error('Not connected to Stellar');
+      
+      // Generate transaction ID for tracking
+      const transactionId = `listing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Add transaction to notification system
+      const notificationStore = useTransactionNotificationStore.getState();
+      notificationStore.addTransaction({
+        id: transactionId,
+        type: 'NFT Listing',
+        details: {
+          tokenId,
+          price,
+          duration,
+          userAddress
+        }
+      });
+      
+      const listTx = await stellarClient.sendTransaction(
+        new SorobanRpc.TransactionBuilder(userAddress, {
+          fee: 100,
+          networkPassphrase: get().network,
+        })
+        .addOperation(
+          new SorobanRpc.Operation.invokeHostFunction({
+            contract: new SorobanRpc.Contract(contracts.nftMarketplace),
+            functionName: 'list_nft',
+            args: [
+              new SorobanRpc.Address(userAddress),
+              tokenId,
+              price,
+              duration,
+            ],
+          })
+        )
+        .build()
+      );
+      
+      // Update transaction with hash
+      if (listTx.hash) {
+        notificationStore.updateTransactionStatus(transactionId, notificationStore.STATUS.PENDING, {
+          hash: listTx.hash
+        });
+      }
+      
+      // Update local state
+      const newListing = {
+        id: Date.now().toString(),
+        tokenId,
+        seller: userAddress,
+        price,
+        duration,
+        expires: Date.now() + duration * 1000,
+        active: true,
+        transactionId,
+      };
+      
+      set(state => ({
+        listings: [...state.listings, newListing],
+        isLoading: false,
+      }));
+      
+      return newListing;
+      
+    } catch (error) {
+      console.error('Failed to list artwork:', error);
+      
+      // Update transaction status to failed
+      const notificationStore = useTransactionNotificationStore.getState();
+      const pendingTransactions = notificationStore.getPendingTransactions();
+      const relevantTransaction = pendingTransactions.find(tx => 
+        tx.type === 'NFT Listing' && 
+        tx.details.tokenId === tokenId
+      );
+      
+      if (relevantTransaction) {
+        notificationStore.updateTransactionStatus(relevantTransaction.id, notificationStore.STATUS.FAILED, {
+          error: error.message
+        });
+      }
+      
+      set({ 
+        error: error.message, 
+        isLoading: false 
+      });
+      throw error;
+    }
+  },
+  
+  buyArtwork: async (tokenId, amount) => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      const { stellarClient, contracts, userAddress } = get();
+      if (!stellarClient || !userAddress) throw new Error('Not connected to Stellar');
+      
+      // Generate transaction ID for tracking
+      const transactionId = `purchase-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Add transaction to notification system
+      const notificationStore = useTransactionNotificationStore.getState();
+      notificationStore.addTransaction({
+        id: transactionId,
+        type: 'NFT Purchase',
+        details: {
+          tokenId,
+          amount,
+          userAddress
+        }
+      });
+      
+      const buyTx = await stellarClient.sendTransaction(
+        new SorobanRpc.TransactionBuilder(userAddress, {
+          fee: 100,
+          networkPassphrase: get().network,
+        })
+        .addOperation(
+          new SorobanRpc.Operation.invokeHostFunction({
+            contract: new SorobanRpc.Contract(contracts.nftMarketplace),
+            functionName: 'buy_nft',
+            args: [
+              new SorobanRpc.Address(userAddress),
+              tokenId,
+              amount,
+            ],
+          })
+        )
+        .build()
+      );
+      
+      // Update transaction with hash
+      if (buyTx.hash) {
+        notificationStore.updateTransactionStatus(transactionId, notificationStore.STATUS.PENDING, {
+          hash: buyTx.hash
+        });
+      }
+      
+      // Update local state
+      set(state => ({
+        listings: state.listings.filter(listing => listing.tokenId !== tokenId),
+        isLoading: false,
+      }));
+      
+      return buyTx;
+      
+    } catch (error) {
+      console.error('Failed to buy artwork:', error);
+      
+      // Update transaction status to failed
+      const notificationStore = useTransactionNotificationStore.getState();
+      const pendingTransactions = notificationStore.getPendingTransactions();
+      const relevantTransaction = pendingTransactions.find(tx => 
+        tx.type === 'NFT Purchase' && 
+        tx.details.tokenId === tokenId
+      );
+      
+      if (relevantTransaction) {
+        notificationStore.updateTransactionStatus(relevantTransaction.id, notificationStore.STATUS.FAILED, {
+          error: error.message
+        });
+      }
+      
+      set({ 
+        error: error.message, 
+        isLoading: false 
+      });
+      throw error;
+    }
+  },
+  
+  // Evolution functions
+  evolveArtwork: async (tokenId, evolutionPrompt) => {
+    try {
+      set({ isLoading: true, error: null });
+      
+      const { stellarClient, contracts, userAddress } = get();
+      if (!stellarClient || !userAddress) throw new Error('Not connected to Stellar');
+      
+      // Generate evolved artwork
+      const evolvedImage = await get().generateEvolvedArtwork(tokenId, evolutionPrompt);
+      
+      // Update artwork in local state
+      set(state => ({
+        artworks: state.artworks.map(artwork => 
+          artwork.id === tokenId 
+            ? { 
+                ...artwork, 
+                imageUrl: evolvedImage,
+                evolutionCount: (artwork.evolutionCount || 0) + 1,
+                lastEvolved: new Date().toISOString(),
+              }
+            : artwork
+        ),
+        isLoading: false,
+      }));
+      
+      return evolvedImage;
+      
+    } catch (error) {
+      console.error('Failed to evolve artwork:', error);
+      set({ 
+        error: error.message, 
+        isLoading: false 
+      });
+      throw error;
+    }
+  },
+  
+  generateEvolvedArtwork: async (tokenId, prompt) => {
+    // In real implementation, this would use the original artwork + prompt
+    return `https://api.muse.art/evolved/${tokenId}?prompt=${encodeURIComponent(prompt)}`;
+  },
+  
+  // Data loading functions
   loadMarketplaceData: async () => {
     try {
       const { stellarClient, contracts } = get();
