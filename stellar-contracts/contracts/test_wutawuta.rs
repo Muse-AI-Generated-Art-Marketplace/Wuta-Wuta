@@ -8,7 +8,7 @@ mod wutawuta_marketplace;
 
 use wutawuta_marketplace::{
     WutaWutaMarketplace, WutaWutaMarketplaceClient,
-    Artwork, Listing, Bid, Evolution, RoyaltyPayment
+    ArtAsset, Listing, Bid, Evolution, RoyaltyPayment
 };
 
 #[test]
@@ -73,19 +73,19 @@ fn test_mint_artwork() {
     
     assert_eq!(token_id, 1);
     
-    // Verify artwork was created correctly
-    let artwork = client.get_artwork(&token_id);
-    assert_eq!(artwork.token_id, token_id);
-    assert_eq!(artwork.creator, creator);
-    assert_eq!(artwork.ipfs_hash, ipfs_hash);
-    assert_eq!(artwork.title, title);
-    assert_eq!(artwork.ai_model, ai_model);
-    assert_eq!(artwork.royalty_percentage, royalty_percentage);
-    assert_eq!(artwork.is_collaborative, is_collaborative);
-    assert_eq!(artwork.ai_contribution, ai_contribution);
-    assert_eq!(artwork.human_contribution, human_contribution);
-    assert_eq!(artwork.can_evolve, can_evolve);
-    assert_eq!(artwork.evolution_count, 0);
+    // Verify art_asset was created correctly
+    let art_asset = client.get_art_asset(&token_id);
+    assert_eq!(art_asset.id, token_id);
+    assert_eq!(art_asset.owner, creator);
+    assert_eq!(art_asset.metadata_uri, ipfs_hash);
+    assert_eq!(art_asset.title, title);
+    assert_eq!(art_asset.ai_model, ai_model);
+    assert_eq!(art_asset.royalty_percentage, royalty_percentage);
+    assert_eq!(art_asset.is_collaborative, is_collaborative);
+    assert_eq!(art_asset.ai_contribution, ai_contribution);
+    assert_eq!(art_asset.human_contribution, human_contribution);
+    assert_eq!(art_asset.can_evolve, can_evolve);
+    assert_eq!(art_asset.evolution_count, 0);
     
     // Verify ownership
     let owner = client.get_token_owner(&token_id);
