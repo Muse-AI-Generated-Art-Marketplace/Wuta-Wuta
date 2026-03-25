@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useRef } from "react";
+import Loading from "../ui/Loading";
 import { useIPFSUpload } from "../../hooks/useIPFSUpload";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -150,7 +151,12 @@ export default function ArtworkUploader({ onMintReady }) {
         </label>
 
         <button type="submit" disabled={uploading}>
-          {uploading ? `${step}` : "Pin to IPFS & Prepare Token URI"}
+          {uploading ? (
+            <>
+              <Loading size="sm" />
+              {step}
+            </>
+          ) : "Pin to IPFS & Prepare Token URI"}
         </button>
       </form>
 

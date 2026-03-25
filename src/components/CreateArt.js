@@ -13,6 +13,7 @@ import {
 import { useMuseStore } from '../store/museStore';
 import { useWalletStore } from '../store/walletStore';
 import AdvancedSettings from './AdvancedSettings';
+import Loading from './ui/Loading';
 import toast from 'react-hot-toast';
 
 const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
@@ -472,7 +473,7 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
               >
                 {isLoading ? (
                   <>
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-3"></div>
+                    <Loading size="sm" />
                     Generating Magic...
                   </>
                 ) : (

@@ -16,6 +16,7 @@ import {
 
 import { useWalletStore } from '../store/walletStore';
 
+import Loading from './ui/Loading';
 import { Button, Modal, Badge, Avatar } from './ui';
 import CopyButton from './CopyButton';
 
@@ -171,7 +172,7 @@ const WalletConnectionModal = ({ isOpen, onClose }) => {
                                     </div>
                                 </div>
                                 {isConnecting ? (
-                                    <RefreshCw className="w-5 h-5 text-purple-600 animate-spin" />
+                                    <Loading size="sm" />
                                 ) : (
                                     <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <CheckCircle className="w-4 h-4 text-purple-600" />
