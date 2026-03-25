@@ -209,7 +209,7 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
               <h3 className="text-base sm:text-lg font-bold text-gray-900">AI Model</h3>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" role="radiogroup" aria-label="AI model selection">
               {aiModels.map((model) => (
                 <button
                   key={model.id}
@@ -219,6 +219,9 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                       ? 'border-purple-500 bg-purple-50/50 shadow-sm'
                       : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'
                   }`}
+                  role="radio"
+                  aria-checked={formData.aiModel === model.id}
+                  aria-describedby={`model-desc-${model.id}`}
                 >
                   <div className="flex items-center justify-between mb-2 w-full">
                     {model.type === 'image' ? (
@@ -231,7 +234,7 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                     )}
                   </div>
                   <div className={`text-sm font-bold ${formData.aiModel === model.id ? 'text-purple-900' : 'text-gray-700'}`}>{model.name}</div>
-                  <div className="text-xs text-gray-500 mt-1 line-clamp-1">{model.description || 'Advanced generation model'}</div>
+                  <div className="text-xs text-gray-500 mt-1 line-clamp-1" id={`model-desc-${model.id}`}>{model.description || 'Advanced generation model'}</div>
                 </button>
               ))}
             </div>
@@ -256,6 +259,9 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
               onChange={(e) => handleInputChange('prompt', e.target.value)}
               placeholder="Describe your artwork in detail... (e.g., 'A futuristic cyberpunk city with neon lights and flying cars at night')"
               className="w-full p-4 bg-gray-50 border-transparent rounded-xl focus:bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-all resize-none text-sm sm:text-base min-h-[120px]"
+              aria-label="Art prompt description"
+              id="art-prompt"
+              rows={6}
             />
             
             <div className="mt-4 flex flex-wrap gap-2">
@@ -266,6 +272,7 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                     formData.prompt ? `${formData.prompt}, ${style.toLowerCase()} style` : `${style.toLowerCase()} style`
                   )}
                   className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 rounded-lg text-xs font-semibold transition-colors"
+                  aria-label={`Add ${style} style to prompt`}
                 >
                   +{style}
                 </button>
@@ -308,6 +315,11 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                   value={formData.humanContribution}
                   onChange={(e) => handleContributionChange('human', parseInt(e.target.value))}
                   className="w-full h-2 rounded-full appearance-none cursor-pointer bg-transparent relative z-10 slider-thumb"
+                  aria-label="Human vs AI contribution balance"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow={formData.humanContribution}
+                  aria-valuetext={`${formData.humanContribution}% human contribution, ${formData.aiContribution}% AI contribution`}
                 />
               </div>
               
@@ -354,6 +366,8 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                   value={formData.style}
                   onChange={(e) => handleInputChange('style', e.target.value)}
                   className="w-full p-3 bg-gray-50 border-transparent rounded-xl text-sm font-medium text-gray-700 focus:bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-all appearance-none cursor-pointer"
+                  aria-label="Select art style"
+                  id="art-style"
                 >
                   <option value="realistic">Realistic</option>
                   <option value="abstract">Abstract</option>
@@ -368,6 +382,8 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                   value={formData.aspectRatio}
                   onChange={(e) => handleInputChange('aspectRatio', e.target.value)}
                   className="w-full p-3 bg-gray-50 border-transparent rounded-xl text-sm font-medium text-gray-700 focus:bg-white focus:ring-2 focus:ring-purple-200 focus:border-purple-500 transition-all appearance-none cursor-pointer"
+                  aria-label="Select aspect ratio"
+                  id="aspect-ratio"
                 >
                   <option value="1:1">Square (1:1)</option>
                   <option value="16:9">Landscape (16:9)</option>
@@ -383,10 +399,11 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                     checked={formData.canEvolve}
                     onChange={(e) => handleInputChange('canEvolve', e.target.checked)}
                     className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500 bg-white"
+                    aria-describedby="evolution-desc"
                   />
                   <div className="ml-3">
                     <span className="block text-sm font-bold text-gray-900">Allow Evolution</span>
-                    <span className="block text-xs text-gray-500">Let other users build upon your artwork</span>
+                    <span className="block text-xs text-gray-500" id="evolution-desc">Let other users build upon your artwork</span>
                   </div>
                 </label>
               </div>
@@ -425,12 +442,13 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                 <div className="w-8 h-8 rounded-lg bg-pink-50 flex items-center justify-center mr-3">
                   <Palette className="w-4 h-4 text-pink-600" />
                 </div>
-                <h3 className="text-base sm:text-lg font-bold text-gray-900">Sketch Pad</h3>
+                <h3 className="text-base sm:text-lg font-bold text-gray-900" id="sketch-pad-title">Sketch Pad</h3>
               </div>
               {humanInput && (
                 <button
                   onClick={clearCanvas}
                   className="text-xs font-bold px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                  aria-label="Clear drawing canvas"
                 >
                   Clear
                 </button>
@@ -452,10 +470,13 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                 onTouchEnd={stopDrawing}
                 onTouchCancel={stopDrawing}
                 style={{ touchAction: 'none' }}
+                aria-label="Drawing canvas for sketch input"
+                role="img"
+                aria-describedby="canvas-help"
               />
               
               {!humanInput && !isDrawing && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-gray-400">
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-gray-400" id="canvas-help">
                   <Palette className="w-12 h-12 mb-3 opacity-20" />
                   <p className="text-sm font-semibold">Draw your base concept here</p>
                   <p className="text-xs mt-1">Optional, but improves results</p>
@@ -469,6 +490,8 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                 onClick={handleSubmit}
                 disabled={isLoading || !address}
                 className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-purple-600 via-purple-500 to-blue-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:shadow-none transition-all flex items-center justify-center text-base sm:text-lg transform active:scale-[0.98]"
+                aria-label="Create AI-human collaborative artwork"
+                aria-describedby="create-button-desc"
               >
                 {isLoading ? (
                   <>
@@ -482,6 +505,7 @@ const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
                   </>
                 )}
               </button>
+              <span id="create-button-desc" className="sr-only">Generate unique AI-human collaborative artwork based on your prompt and sketch</span>
               
               {!address && (
                 <p className="text-center text-xs font-bold text-red-500 mt-3 bg-red-50 py-2 rounded-lg">

@@ -158,6 +158,8 @@ const Gallery = () => {
             onClick={handleBatchAnalyze}
             disabled={isAnalyzing || artworks.length === 0}
             className="px-4 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm transition-colors flex items-center gap-2"
+            aria-label="Analyze all artworks with Vision AI"
+            aria-describedby="batch-analyze-desc"
           >
             {isAnalyzing ? (
               <>
@@ -171,6 +173,7 @@ const Gallery = () => {
               </>
             )}
           </button>
+          <span id="batch-analyze-desc" className="sr-only">This will analyze all unanalyzed artworks using Vision AI to extract metadata and improve searchability</span>
         </div>
       </div>
       
@@ -243,18 +246,22 @@ const Gallery = () => {
             <button
               onClick={() => setShowPopularTags(!showPopularTags)}
               className="text-xs font-bold px-3 py-1.5 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-expanded={showPopularTags}
+              aria-controls="popular-tags-list"
             >
               {showPopularTags ? 'Hide' : 'Show'}
             </button>
           </div>
           
           {showPopularTags && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" id="popular-tags-list" role="list" aria-label="Popular tags for filtering">
               {popularTags.slice(0, 12).map(({ tag, count }) => (
                 <button
                   key={tag}
                   onClick={() => handleTagClick(tag)}
-                  className="px-3 py-1.5 bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 text-purple-700 hover:text-purple-800 rounded-lg text-xs font-semibold transition-all border border-purple-100 flex items-center gap-1"
+                  className="px-3 py-1.5 bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 text-purple-700 hover:text-purple-800 rounded-lg text-xs font-semibold transition-all border border-purple-100 flex items-center gap-2"
+                  aria-label={`Filter by ${tag} tag (${count} artworks)`}
+                  role="listitem"
                 >
                   {tag}
                   <span className="text-purple-500">({count})</span>
@@ -269,6 +276,8 @@ const Gallery = () => {
       <button
         onClick={() => setIsFiltersOpen(!isFiltersOpen)}
         className="sm:hidden flex items-center justify-center space-x-2 w-full py-2.5 bg-white border border-gray-200 rounded-xl text-gray-700 font-medium shadow-sm"
+        aria-expanded={isFiltersOpen}
+        aria-controls="filters-panel"
       >
         <Filter className="w-4 h-4" />
         <span>{isFiltersOpen ? 'Hide Filters' : 'Show Filters'}</span>
@@ -279,6 +288,9 @@ const Gallery = () => {
         initial={false}
         animate={{ height: isFiltersOpen || window.innerWidth >= 640 ? 'auto' : 0, opacity: isFiltersOpen || window.innerWidth >= 640 ? 1 : 0 }}
         className={`overflow-hidden sm:overflow-visible transition-all duration-300 ${!isFiltersOpen && 'max-sm:hidden'}`}
+        id="filters-panel"
+        role="region"
+        aria-label="Artwork filters"
       >
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 sm:gap-4">
@@ -291,6 +303,8 @@ const Gallery = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all placeholder-gray-400"
+                aria-label="Search artworks"
+                id="artwork-search"
               />
             </div>
 
@@ -300,6 +314,8 @@ const Gallery = () => {
                 value={filterModel}
                 onChange={(e) => setFilterModel(e.target.value)}
                 className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm text-gray-700 font-medium focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all appearance-none cursor-pointer"
+                aria-label="Filter by AI model"
+                id="ai-model-filter"
               >
                 <option value="all">All Models</option>
                 <option value="stable-diffusion">Stable Diffusion</option>
@@ -317,6 +333,8 @@ const Gallery = () => {
                 value={filterStyle}
                 onChange={(e) => setFilterStyle(e.target.value)}
                 className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm text-gray-700 font-medium focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all appearance-none cursor-pointer"
+                aria-label="Filter by art style"
+                id="style-filter"
               >
                 <option value="all">All Styles</option>
                 {availableStyles.map(style => (
@@ -334,6 +352,8 @@ const Gallery = () => {
                 value={filterPrice}
                 onChange={(e) => setFilterPrice(e.target.value)}
                 className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm text-gray-700 font-medium focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all appearance-none cursor-pointer"
+                aria-label="Filter by price range"
+                id="price-filter"
               >
                 <option value="all">All Prices</option>
                 <option value="under-100">Under 100 XLM</option>
@@ -351,6 +371,8 @@ const Gallery = () => {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="w-full pl-4 pr-10 py-2.5 sm:py-3 bg-gray-50 border-transparent rounded-lg sm:rounded-xl text-sm text-gray-700 font-medium focus:bg-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all appearance-none cursor-pointer"
+                aria-label="Sort artworks"
+                id="sort-options"
               >
                 <option value="recent">Most Recent</option>
                 <option value="oldest">Oldest First</option>
@@ -371,9 +393,11 @@ const Gallery = () => {
                 checked={filterVisionAnalyzed}
                 onChange={(e) => setFilterVisionAnalyzed(e.target.checked)}
                 className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 bg-white mr-2"
+                aria-describedby="vision-analyzed-desc"
               />
               <span className="text-sm font-medium text-gray-700">Vision Analyzed Only</span>
             </label>
+            <span id="vision-analyzed-desc" className="sr-only">Show only artworks that have been analyzed by Vision AI</span>
 
             {availableMoods.length > 0 && (
               <div className="flex items-center gap-2">
