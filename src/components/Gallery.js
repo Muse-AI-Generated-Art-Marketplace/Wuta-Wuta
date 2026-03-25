@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useMuseStore } from '../store/museStore';
 import { useWalletStore } from '../store/walletStore';
+import Loading from './ui/Loading';
 import toast from 'react-hot-toast';
 import ArtworkGrid from './ArtworkGrid';
 
@@ -161,7 +162,7 @@ const Gallery = () => {
           >
             {isAnalyzing ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-600 border-t-transparent"></div>
+                <Loading size="xs" />
                 Analyzing...
               </>
             ) : (
@@ -412,7 +413,7 @@ const Gallery = () => {
       {/* Infinite scroll sentinel */}
       {hasMore && (
         <div ref={sentinelRef} className="flex justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-500 border-t-transparent" />
+          <Loading size="md" />
         </div>
       )}
       
