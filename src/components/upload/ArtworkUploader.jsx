@@ -181,6 +181,19 @@ export default function ArtworkUploader({ onMintReady }) {
                 </td>
               </tr>
               <tr>
+                <th>Thumbnail CID</th>
+                <td>
+                  <code>{result.thumbnailCID}</code>{" "}
+                  <a
+                    href={`https://gateway.pinata.cloud/ipfs/${result.thumbnailCID}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View ↗
+                  </a>
+                </td>
+              </tr>
+              <tr>
                 <th>Metadata CID</th>
                 <td>
                   <code>{result.metadataCID}</code>{" "}

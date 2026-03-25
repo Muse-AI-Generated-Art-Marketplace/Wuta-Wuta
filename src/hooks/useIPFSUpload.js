@@ -11,7 +11,8 @@ import { uploadArtworkToIPFS, verifyCIDPinned } from "../services/ipfsService";
 
 /**
  * @typedef {object} UploadResult
- * @property {string} imageCID     - IPFS CID of the pinned artwork image.
+ * @property {string} imageCID     - IPFS CID of the optimized artwork image.
+ * @property {string} thumbnailCID - IPFS CID of the generated thumbnail image.
  * @property {string} metadataCID  - IPFS CID of the pinned metadata JSON.
  * @property {string} tokenURI     - ipfs://<metadataCID> — pass this to the smart contract.
  */
@@ -43,7 +44,7 @@ export function useIPFSUpload() {
     setVerified(null);
 
     try {
-      setStep("Pinning artwork image to IPFS…");
+      setStep("Processing & Pinning artwork (Optimized + Thumbnail)…");
       const uploadResult = await uploadArtworkToIPFS(artworkFile, artworkInfo);
 
       setStep("Verifying pin on Pinata…");

@@ -152,19 +152,26 @@ export function buildNFTMetadata({
  * @returns {Promise<{imageCID: string, metadataCID: string, tokenURI: string}>}
  */
 export async function uploadArtworkToIPFS(artworkFile, artworkInfo) {
-  // Step 1 — pin the image
-  const imageCID = await pinFileToIPFS(artworkFile, artworkInfo.artworkId);
+  const formData = new FormData();
+  formData.append('artwork', artworkFile);
+  
+  // Append all metadata info to formData
+  Object.keys(artworkInfo).forEach(key => {
+    formData.append(key, artworkInfo[key]);
+  });
 
-  // Step 2 — build metadata with the image CID baked in
-  const metadata = buildNFTMetadata({ ...artworkInfo, imageCID });
-
-  // Step 3 — pin the metadata JSON
-  const metadataCID = await pinMetadataToIPFS(metadata, artworkInfo.artworkId);
-
-  // The tokenURI passed to the smart contract
-  const tokenURI = `ipfs://${metadataCID}`;
-
-  return { imageCID, metadataCID, tokenURI };
+  try {
+    const response = await axios.post('/api/upload/artwork', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    
+    return response.data; // { imageCID, thumbnailCID, metadataCID, tokenURI, success }
+  } catch (err) {
+    console.error('[Upload Pipeline] Backend upload failed:', err);
+    throw new Error('Failed to process and upload artwork via backend: ' + (err.response?.data?.message || err.message));
+  }
 }
 
 // ─── 5. Verify a Pin is Still Live ───────────────────────────────────────────
