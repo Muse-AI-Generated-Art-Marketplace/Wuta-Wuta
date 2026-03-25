@@ -1,44 +1,15 @@
-# Stellar Horizon Webhook Listener Implementation
-## Status: 🚀 In Progress
+# Issue #38: Define ArtAsset Storage and Metadata Structure - Progress Tracker
 
-### Step 1: [✅] Identify STELLAR_CONTRACT_ID
-- Use env var STELLAR_CONTRACT_ID (placeholder for now, configurable)
-- Search frontend for contract addresses (e.g. src/components/TransactionHistory.js, stores)
-- Add to .env: STELLAR_CONTRACT_ID=...
+## Completed Steps
 
-### Step 2: [✅] Install Dependencies
-```
-npm i stellar-sdk ws events
-```
-```
-cd server && npm i stellar-sdk ws events
-cd ..
-```
+- [ ] Step 1: Rename `Artwork` struct to `ArtAsset` in WutaWutaMarketplace.rs and ensure it has required fields (id/token_id: u64, owner via Map, metadata_uri/ipfs_hash: String IPFS, royalty_percentage: u32)
+- [ ] Step 2: Update related uses of `Artwork` to `ArtAsset` throughout WutaWutaMarketplace.rs (get_artwork, mint_artwork params, storage)
+- [ ] Step 3: Update ArtAssetToken.rs - replace ArtworkMetadata with ArtAsset integration (call WutaWutaMarketplaceClient.mint_artwork)
+- [ ] Step 4: Update test_wutawuta.rs - change struct refs, test data to use ArtAsset
+- [ ] Step 5: Build contracts - cd stellar-contracts/contracts && cargo build --release
+- [ ] Step 6: Run tests - cd stellar-contracts/contracts && cargo test
+- [ ] Step 7: Create blackboxai/issue-38-artasset branch, commit, PR
 
-### Step 3: [✅] Update Prisma Schema
-- Added Transaction model + EventType enum
-- Added indexes on txHash/contractId
-```
-npx prisma db push
-npx prisma generate
-```
+## Next Action
 
-### Step 4: [✅] Update server/index.js
-- Import Prisma, stellar-sdk
-- Env config
-- Start listener
-
-### Step 5: [✅] Create server/stellarListener.js
-- Horizon streaming
-- Event parsing → DB updates
-
-### Step 6: [✅] Test Listener
-- Simulate tx or monitor testnet
-- Verify DB updates
-
-### Step 7: [✅] Frontend Integration (Optional)
-- Replace polling with server WS
-
-### Step 8: [✅] Update Docs
-- README.md, TESTING.md
-
+Start with Step 1: Edit WutaWutaMarketplace.rs
