@@ -7,10 +7,10 @@ use soroban_sdk::unwrap::UnwrapOptimized;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[contracttype]
-pub struct Artwork {
-    pub token_id: u64,
-    pub creator: Address,
-    pub ipfs_hash: String,
+pub struct ArtAsset {
+    pub id: u64,
+    pub owner: Address,
+    pub metadata_uri: String,
     pub title: String,
     pub description: String,
     pub ai_model: String,
@@ -97,7 +97,7 @@ impl WutaWutaMarketplace {
 
         // Initialize storage maps
         env.storage().instance().set(&Map::<Address, Vec<u64>>::new(&env));
-        env.storage().instance().set(&Map::<u64, Artwork>::new(&env));
+        env.storage().instance().set(&Map::<u64, ArtAsset>::new(&env));
         env.storage().instance().set(&Map::<u64, Listing>::new(&env));
         env.storage().instance().set(&Vec::<Bid>::new(&env));
         env.storage().instance().set(&Map::<u64, Vec<Evolution>>::new(&env));
@@ -143,10 +143,10 @@ impl WutaWutaMarketplace {
         let token_id = Self::increment_nft_counter(env.clone());
         let creation_timestamp = env.ledger().timestamp();
 
-        let artwork = Artwork {
-            token_id,
-            creator: creator.clone(),
-            ipfs_hash: ipfs_hash.clone(),
+let art_asset = ArtAsset {
+            id: token_id,
+            owner: creator.clone(),
+            metadata_uri: ipfs_hash.clone(),
             title: title.clone(),
             description,
             ai_model: ai_model.clone(),
@@ -161,9 +161,9 @@ impl WutaWutaMarketplace {
         };
 
         // Store artwork
-        let mut artworks = Self::get_artworks(env.clone());
-        artworks.set(token_id, artwork.clone());
-        env.storage().instance().set(&artworks);
+let mut art_assets = Self::get_art_assets(env.clone());
+        art_assets.set(token_id, art_asset.clone());
+        env.storage().instance().set(&art_assets);
 
         // Update creator's token list
         let mut creator_tokens = Self::get_creator_tokens(env.clone(), creator.clone());
@@ -607,9 +607,9 @@ impl WutaWutaMarketplace {
     }
 
     // View functions
-    pub fn get_artwork(env: Env, token_id: u64) -> Artwork {
-        let artworks = Self::get_artworks(env);
-        artworks.get(token_id).unwrap_optimized()
+    pub fn get_art_asset(env: Env, token_id: u64) -> ArtAsset {
+        let art_assets = Self::get_art_assets(env);
+        art_assets.get(token_id).unwrap_optimized()
     }
 
     pub fn get_listing(env: Env, token_id: u64) -> Listing {
@@ -694,8 +694,8 @@ impl WutaWutaMarketplace {
         env.storage().instance().get(&0u64).unwrap_or(86400) // Default 1 day
     }
 
-    fn get_artworks(env: Env) -> Map<u64, Artwork> {
-        env.storage().instance().get(&Map::<u64, Artwork>::new(&env)).unwrap_or_default()
+    fn get_art_assets(env: Env) -> Map<u64, ArtAsset> {
+        env.storage().instance().get(&Map::<u64, ArtAsset>::new(&env)).unwrap_or_default()
     }
 
     fn get_listings_map(env: Env) -> Map<u64, Listing> {
