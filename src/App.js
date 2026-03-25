@@ -8,6 +8,8 @@ import {
     History,
     FileText
 } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
+
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Gallery from './components/Gallery';
@@ -21,7 +23,6 @@ import MobileBottomNav from './components/MobileBottomNav';
 import ErrorBoundary from './components/ErrorBoundary';
 import WalletConnectionModal from './components/WalletConnectionModal';
 import { useWalletStore } from './store/walletStore';
-import { Toaster } from 'react-hot-toast';
 
 const navigation = [
     { id: 'gallery', name: 'Gallery', icon: GalleryIcon },

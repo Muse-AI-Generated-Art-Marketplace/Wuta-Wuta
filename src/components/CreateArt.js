@@ -10,10 +10,12 @@ import {
   Type,
   Sliders
 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
 import { useMuseStore } from '../store/museStore';
 import { useWalletStore } from '../store/walletStore';
+
 import AdvancedSettings from './AdvancedSettings';
-import toast from 'react-hot-toast';
 
 const CreateArt = ({ currentPrompt, setCurrentPrompt }) => {
   const { 

@@ -384,7 +384,7 @@ describe('Parameter Validation Utils', () => {
       expect(sanitized.description).toBe('test description');
     });
 
-    test('removes HTML tags from strings', () => {
+    test('escapes HTML-sensitive characters in strings', () => {
       const params = {
         name: 'test <script>alert("xss")</script> name',
         safe: 'safe name'
@@ -392,7 +392,7 @@ describe('Parameter Validation Utils', () => {
       
       const sanitized = sanitizeParameters(params);
       
-      expect(sanitized.name).toBe('test alert("xss") name');
+      expect(sanitized.name).toBe('test &lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt; name');
       expect(sanitized.safe).toBe('safe name');
     });
 

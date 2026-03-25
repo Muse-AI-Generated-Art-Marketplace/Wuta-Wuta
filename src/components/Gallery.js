@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useInfiniteScroll } from '../utils/useInfiniteScroll';
 import { motion } from 'framer-motion';
 import { 
   Image as GalleryIcon, 
@@ -7,11 +6,16 @@ import {
   ShoppingCart,
   TrendingUp,
   DollarSign,
-  Filter
+  Filter,
+  Sparkles
 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+import { useInfiniteScroll } from '../utils/useInfiniteScroll';
 import { useMuseStore } from '../store/museStore';
 import { useWalletStore } from '../store/walletStore';
-import toast from 'react-hot-toast';
+
+
 import ArtworkGrid from './ArtworkGrid';
 
 const Gallery = () => {

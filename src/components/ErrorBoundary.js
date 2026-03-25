@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+
 import { Button, Card, CardContent } from './ui';
 
 class ErrorBoundary extends React.Component {

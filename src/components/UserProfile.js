@@ -13,9 +13,11 @@ import {
   Grid3X3,
   List
 } from 'lucide-react';
+
 import { useMuseStore } from '../store/museStore';
 import { useWalletStore } from '../store/walletStore';
 import { useUserProfileStore } from '../store/userProfileStore';
+
 import ArtworkGrid from './ArtworkGrid';
 import CopyButton from './CopyButton';
 

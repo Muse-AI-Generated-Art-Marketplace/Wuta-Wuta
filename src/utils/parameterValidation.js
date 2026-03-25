@@ -1,5 +1,15 @@
 // Parameter validation utilities for advanced AI settings
 
+const HTML_ESCAPE_MAP = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+};
+
+const escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => HTML_ESCAPE_MAP[character]);
+
 export const validateParameter = (key, value, rules) => {
   const rule = rules[key];
   if (!rule) return { isValid: true, error: null };
@@ -223,7 +233,7 @@ export const sanitizeParameters = (parameters) => {
     
     // Sanitize strings
     if (typeof value === 'string') {
-      sanitized[key] = value.replace(/<[^>]*>/g, '').trim();
+      sanitized[key] = escapeHtml(value.trim());
     } else {
       sanitized[key] = value;
     }

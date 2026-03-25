@@ -452,7 +452,7 @@ const useUserProfileStore = create(
       getFilteredCollection: () => {
         const { artworks, filters, sortBy } = get().collection;
         
-        let filtered = artworks.filter(artwork => {
+        const filtered = artworks.filter(artwork => {
           if (filters.category !== 'all') {
             // Filter by category based on attributes
             const hasCategory = artwork.attributes?.some(attr => 
