@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const StellarListener = require('./stellarListener.js');
+const broadcaster = require('./activityBroadcaster.js');
 require('dotenv').config();
 
 const app = express();
@@ -12,8 +13,8 @@ let listener;
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? process.env.FRONTEND_URL 
+  origin: process.env.NODE_ENV === 'production'
+    ? process.env.FRONTEND_URL
     : 'http://localhost:3000',
   credentials: true
 }));
@@ -23,13 +24,13 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 // Rate limiting
 const rateLimit = require('express-rate-limit');
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100,
   message: { error: 'Too many requests, please try again later.' }
 });
 app.use('/api/', limiter);
 
-// AI Service (existing)
+// AI Service (unchanged)
 class AIService {
   constructor() {
     this.providers = {
@@ -66,20 +67,23 @@ class AIService {
 
 const aiService = new AIService();
 
-// Existing AI route
+// Existing AI route (unchanged)
 app.post('/api/ai/generate', async (req, res) => {
   // ... (existing code)
 });
 
-// Health check - include listener status
+// Health check — now includes WebSocket client count
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
+  res.json({
+    status: 'healthy',
     timestamp: new Date().toISOString(),
     services: {
-      openai: !!process.env.OPENAI_API_KEY,
-      huggingface: !!process.env.HUGGINGFACE_API_KEY,
-      stellarListener: listener ? listener.isRunning : false
+      openai:          !!process.env.OPENAI_API_KEY,
+      huggingface:     !!process.env.HUGGINGFACE_API_KEY,
+      stellarListener: listener ? listener.isRunning : false,
+      websocket:       broadcaster.wss
+        ? `${broadcaster.wss.clients.size} client(s) connected`
+        : 'not attached',
     },
     env: {
       hasContractId: !!process.env.STELLAR_CONTRACT_ID
@@ -87,7 +91,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// New Stellar endpoints
+// Stellar endpoints (unchanged)
 app.get('/api/stellar/stats', async (req, res) => {
   const prisma = require('./prisma');
   const stats = await prisma.transaction.groupBy({
@@ -108,27 +112,30 @@ app.get('/api/stellar/recent', async (req, res) => {
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('🛑 Shutting down listener...');
+  console.log('🛑 Shutting down...');
   if (listener) listener.stop();
+  await broadcaster.close();
   process.exit(0);
 });
 
-// Start server + listener
-app.listen(PORT, () => {
+// Start server — capture the http.Server so the WebSocket broadcaster
+// can attach to the same port rather than opening a second one.
+const httpServer = app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  
-  // Start Stellar listener
+
+  // Attach WebSocket broadcaster to the same HTTP server.
+  // Clients connect via ws://localhost:3001/live-feed
+  broadcaster.attach(httpServer);
+
+  // Start Stellar listener — broadcaster is already imported by stellarListener.js
   listener = new StellarListener({
     horizonUrl: process.env.HORIZON_URL,
-    contractId: process.env.STELLAR_CONTRACT_ID
+    contractId: process.env.STELLAR_CONTRACT_ID,
   });
-  
-  listener.start().then(() => {
-    console.log('🌌 Stellar listener started successfully!');
-  }).catch(err => {
-    console.error('❌ Failed to start Stellar listener:', err);
-  });
+
+  listener.start()
+    .then(() => console.log('🌌 Stellar listener started successfully!'))
+    .catch(err => console.error('❌ Failed to start Stellar listener:', err));
 });
 
 module.exports = app;
-

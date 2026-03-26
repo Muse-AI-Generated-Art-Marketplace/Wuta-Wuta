@@ -1,36 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { Menu, Wallet, LogOut, Search, Sun, Moon } from 'lucide-react';
 
 import { Button, Badge, Avatar } from './ui';
 import CopyButton from './CopyButton';
+import { useTheme } from '../contexts/ThemeContext';
 
 const Header = ({ onMenuClick, onConnectWallet, onDisconnectWallet, address, isConnected, onOpenPalette }) => {
-  const [isDark, setIsDark] = useState(false);
-
-  // Initialize theme on load
-  useEffect(() => {
-    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
-      setIsDark(true);
-    } else {
-      document.documentElement.classList.remove('dark');
-      setIsDark(false);
-    }
-  }, []);
-
-  // Toggle function
-  const toggleTheme = () => {
-    if (document.documentElement.classList.contains('dark')) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-      setIsDark(false);
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-      setIsDark(true);
-    }
-  };
+  const { isDark, toggleTheme } = useTheme();
 
   return (
     <motion.header

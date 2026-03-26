@@ -1,5 +1,6 @@
 const { Server } = require('@stellar/stellar-sdk');
 const prisma = require('./prisma.js');
+const broadcaster = require('./activityBroadcaster.js');
 
 class StellarListener {
   constructor(config = {}) {
@@ -38,7 +39,7 @@ class StellarListener {
             this.restart();
           }
         });
-      
+
       this.stream = es;
     } catch (error) {
       console.error('Failed to start listener:', error);
@@ -50,13 +51,11 @@ class StellarListener {
     if (!tx.successful) return;
     if (tx.results?.length === 0) return;
 
-    // Filter for contract invocations
     const contractResults = tx.results.filter(r => r.type === 'invokeContract');
     for (const result of contractResults) {
       const contract = result.contract;
       if (this.contractId && contract !== this.contractId) continue;
 
-      // Parse events
       const events = this.parseEvents(tx, result);
       for (const event of events) {
         await this.handleEvent(tx, event);
@@ -69,10 +68,7 @@ class StellarListener {
     if (result.events) {
       for (const [topic, evs] of Object.entries(result.events)) {
         evs.forEach(ev => {
-          events.push({
-            topic,
-            ...ev
-          });
+          events.push({ topic, ...ev });
         });
       }
     }
@@ -84,27 +80,28 @@ class StellarListener {
     if (!eventType) return;
 
     try {
-      // Store raw event
+      // Persist to DB
       await prisma.transaction.create({
         data: {
           txHash: tx.id,
           contractId: tx.results.find(r => r === event.result)?.contract || '',
           eventType,
-          parsedData: {
-            event,
-            tx,
-          },
+          parsedData: { event, tx },
           blockTimestamp: new Date(tx.created_at),
         }
       });
 
-      console.log(`📝 Recorded event: ${eventType} in tx ${tx.id.slice(0,8)}`);
+      console.log(`📝 Recorded event: ${eventType} in tx ${tx.id.slice(0, 8)}`);
+
+      // Broadcast to all connected WebSocket clients immediately after persisting.
+      // This is the bridge between the server-side Stellar listener and the frontend.
+      broadcaster.broadcast(event, tx.id, eventType);
 
       // Business logic updates
       await this.updateBusinessLogic(eventType, event, tx);
 
     } catch (error) {
-      if (error.code === 'P2002') { // Unique violation
+      if (error.code === 'P2002') {
         console.log(`⚠️ Duplicate tx ${tx.id} skipped`);
       } else {
         console.error('Event processing error:', error);
@@ -114,17 +111,15 @@ class StellarListener {
 
   mapEventType(event) {
     const topic = event.topic || '';
-    const attrs = event.attributes || [];
 
-    // Map contract events to enum
-    if (topic.includes('artwork_minted')) return 'ARTWORK_MINTED';
-    if (topic.includes('artwork_listed')) return 'ARTWORK_LISTED';
-    if (topic.includes('artwork_sold')) return 'ARTWORK_SOLD';
-    if (topic.includes('bid_made')) return 'BID_MADE';
-    if (topic.includes('auction_ended')) return 'AUCTION_ENDED';
-    if (topic.includes('artwork_evolved')) return 'ARTWORK_EVOLVED';
-    if (topic.includes('listing_cancelled')) return 'LISTING_CANCELLED';
-    if (topic.includes('marketplace_initialized')) return 'MARKETPLACE_INITIALIZED';
+    if (topic.includes('artwork_minted'))          return 'ARTWORK_MINTED';
+    if (topic.includes('artwork_listed'))           return 'ARTWORK_LISTED';
+    if (topic.includes('artwork_sold'))             return 'ARTWORK_SOLD';
+    if (topic.includes('bid_made'))                 return 'BID_MADE';
+    if (topic.includes('auction_ended'))            return 'AUCTION_ENDED';
+    if (topic.includes('artwork_evolved'))          return 'ARTWORK_EVOLVED';
+    if (topic.includes('listing_cancelled'))        return 'LISTING_CANCELLED';
+    if (topic.includes('marketplace_initialized'))  return 'MARKETPLACE_INITIALIZED';
 
     return null;
   }
@@ -132,23 +127,21 @@ class StellarListener {
   async updateBusinessLogic(eventType, event, tx) {
     switch (eventType) {
       case 'ARTWORK_SOLD':
-      case 'AUCTION_ENDED':
-        // Create TradeHistory
+      case 'AUCTION_ENDED': {
         const parsed = event.parsedData || {};
         await prisma.tradeHistory.create({
           data: {
             transactionHash: tx.id,
-            price: parsed.price || 0,
+            price:     parsed.price   || 0,
             artAssetId: parsed.token_id ? `asset_${parsed.token_id}` : null,
-            sellerId: parsed.seller || null,
-            buyerId: parsed.buyer || null,
+            sellerId:  parsed.seller  || null,
+            buyerId:   parsed.buyer   || null,
           }
         });
         break;
+      }
       case 'ARTWORK_EVOLVED':
-        // Update Evolution or ArtAsset
         break;
-      // Add more cases
     }
   }
 
@@ -168,4 +161,3 @@ class StellarListener {
 }
 
 module.exports = StellarListener;
-
