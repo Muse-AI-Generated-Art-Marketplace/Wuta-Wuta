@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
 
 const Dropdown = React.forwardRef(({
   trigger,
@@ -9,7 +8,7 @@ const Dropdown = React.forwardRef(({
   className = '',
   disabled = false,
   ...props
-}, ref) => {
+}, _ref) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   

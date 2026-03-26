@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "build": "soroban compile",
-    "build:wutawuta": "soroban compile contracts/WutaWutaMarketplace.rs --target-dir target/wasm32-unknown-unknown/release",
+    "build:wutawuta": "soroban compile contracts/wutawuta_marketplace.rs --target-dir target/wasm32-unknown-unknown/release",
     "deploy": "node scripts/deploy.js",
     "deploy:testnet": "node scripts/deploy.js deploy testnet",
     "deploy:mainnet": "node scripts/deploy.js deploy mainnet",

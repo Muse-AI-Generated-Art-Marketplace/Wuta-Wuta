@@ -1,13 +1,9 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import {
-    Wallet,
     X,
     CheckCircle,
     ExternalLink,
-    ExternalLinkIcon,
-    HelpCircle,
-    Copy,
     LogOut,
     RefreshCw,
     Wallet2,
@@ -16,6 +12,7 @@ import {
 
 import { useWalletStore } from '../store/walletStore';
 
+import Loading from './ui/Loading';
 import { Button, Modal, Badge, Avatar } from './ui';
 import CopyButton from './CopyButton';
 
@@ -49,10 +46,6 @@ const WalletConnectionModal = ({ isOpen, onClose }) => {
         disconnectWallet();
         onClose();
     };
-
-    const shortAddress = (address && typeof address === 'string' && address.slice)
-        ? `${address.slice(0, 6)}...${address.slice(-6)}`
-        : '';
 
     return (
         <Modal
@@ -98,22 +91,22 @@ const WalletConnectionModal = ({ isOpen, onClose }) => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
-                            <Button
-                                variant="outline"
+                            <button
                                 onClick={() => window.open(`https://stellar.expert/explorer/testnet/account/${address}`, '_blank')}
                                 className="w-full justify-center group"
+                                aria-label="View wallet on Stellar explorer"
                             >
                                 <ExternalLink className="w-4 h-4 mr-2 group-hover:text-purple-600 transition-colors" />
                                 Explorer
-                            </Button>
-                            <Button
-                                variant="danger"
+                            </button>
+                            <button
                                 onClick={handleDisconnect}
                                 className="w-full justify-center bg-red-50 text-red-600 border-red-100 hover:bg-red-100 dark:bg-red-900/10 dark:border-red-900/20"
+                                aria-label="Disconnect wallet"
                             >
                                 <LogOut className="w-4 h-4 mr-2" />
                                 Disconnect
-                            </Button>
+                            </button>
                         </div>
                     </div>
                 ) : (
@@ -142,6 +135,7 @@ const WalletConnectionModal = ({ isOpen, onClose }) => {
                                 <button
                                     onClick={clearError}
                                     className="p-1 hover:bg-red-100 dark:hover:bg-red-900/20 rounded ml-auto transition-colors"
+                                    aria-label="Clear error message"
                                 >
                                     <X className="w-4 h-4 text-red-400" />
                                 </button>
@@ -156,6 +150,8 @@ const WalletConnectionModal = ({ isOpen, onClose }) => {
                   w-full flex items-center justify-between p-4 rounded-2xl border-2 transition-all group
                   ${isConnecting ? 'bg-gray-50 border-gray-100 cursor-not-allowed' : 'bg-white hover:bg-purple-50 border-gray-100 hover:border-purple-200 dark:bg-gray-800/50 dark:border-gray-700 dark:hover:border-purple-500/30'}
                 `}
+                                aria-label="Connect Freighter wallet"
+                                aria-describedby="freighter-desc"
                             >
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-xl flex items-center justify-center shadow-sm border border-gray-100 dark:border-gray-800 group-hover:scale-110 transition-transform overflow-hidden">
@@ -167,11 +163,11 @@ const WalletConnectionModal = ({ isOpen, onClose }) => {
                                     </div>
                                     <div className="text-left">
                                         <h4 className="font-bold text-gray-900 dark:text-white">Freighter Wallet</h4>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">Standard Stellar extension</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400" id="freighter-desc">Standard Stellar extension</p>
                                     </div>
                                 </div>
                                 {isConnecting ? (
-                                    <RefreshCw className="w-5 h-5 text-purple-600 animate-spin" />
+                                    <Loading size="sm" />
                                 ) : (
                                     <div className="w-8 h-8 rounded-full bg-gray-50 dark:bg-gray-900 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                         <CheckCircle className="w-4 h-4 text-purple-600" />

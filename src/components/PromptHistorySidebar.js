@@ -7,8 +7,7 @@ import {
   Trash2, 
   Copy, 
   Wand2,
-  History,
-  X
+  History
 } from 'lucide-react';
 
 const PromptHistorySidebar = ({ onRegeneratePrompt, currentPrompt }) => {

@@ -40,11 +40,12 @@ const Button = React.forwardRef(({
   };
   
   const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;
+  const stateClasses = disabled || loading ? ' opacity-50 cursor-not-allowed' : '';
   
   return (
     <motion.button
       ref={ref}
-      className={classes}
+      className={`${classes}${stateClasses}`}
       whileHover={{ scale: disabled || loading ? 1 : 1.02 }}
       whileTap={{ scale: disabled || loading ? 1 : 0.98 }}
       onClick={loading ? undefined : onClick}
@@ -52,7 +53,10 @@ const Button = React.forwardRef(({
       {...props}
     >
       {loading && (
-        <Loader2 className={`animate-spin ${iconSizes[size]} ${iconPosition === 'right' ? 'mr-2' : 'mr-2'}`} />
+        <Loader2
+          data-testid="loading-spinner"
+          className={`animate-spin ${iconSizes[size]} ${iconPosition === 'right' ? 'mr-2' : 'mr-2'}`}
+        />
       )}
       
       {!loading && Icon && iconPosition === 'left' && (

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Menu, Wallet, X, LogOut, Search, Command, Sun, Moon } from 'lucide-react';
+import { Menu, Wallet, LogOut, Search, Sun, Moon } from 'lucide-react';
 
 import { Button, Badge, Avatar } from './ui';
 import CopyButton from './CopyButton';

@@ -1,56 +1,42 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+
 import { Button, Card, CardContent } from './ui';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      hasError: false, 
-      error: null, 
+    this.state = {
+      hasError: false,
+      error: null,
       errorInfo: null,
       errorId: null
     };
   }
 
-  static getDerivedStateFromError(error) {
-    // Update state so the next render will show the fallback UI
+  static getDerivedStateFromError(_error) {
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log the error to console in development
-    console.error('Error Boundary caught an error:', error, errorInfo);
-    
-    // Generate unique error ID for tracking
     const errorId = `ERR-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
     this.setState({
-      error: error,
-      errorInfo: errorInfo,
-      errorId: errorId
+      error,
+      errorInfo,
+      errorId
     });
 
-    // Log error details for debugging
-    if (process.env.NODE_ENV === 'development') {
-      console.group('🚨 Error Boundary Details');
-      console.error('Error ID:', errorId);
-      console.error('Error:', error);
-      console.error('Error Info:', errorInfo);
-      console.groupEnd();
-    }
-
-    // In production, you might want to send this to an error reporting service
     if (process.env.NODE_ENV === 'production') {
       // Example: sendToErrorReporting(error, errorInfo, errorId);
     }
   }
 
   handleReset = () => {
-    this.setState({ 
-      hasError: false, 
-      error: null, 
+    this.setState({
+      hasError: false,
+      error: null,
       errorInfo: null,
       errorId: null
     });
@@ -72,17 +58,15 @@ class ErrorBoundary extends React.Component {
           >
             <Card className="border-red-200 shadow-xl">
               <CardContent className="p-8 text-center">
-                {/* Error Icon */}
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                  transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
                   className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6"
                 >
                   <AlertTriangle className="w-10 h-10 text-red-600" />
                 </motion.div>
 
-                {/* Error Title */}
                 <motion.h1
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -92,21 +76,19 @@ class ErrorBoundary extends React.Component {
                   Oops! Something went wrong
                 </motion.h1>
 
-                {/* Error Description */}
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                   className="text-gray-600 mb-8 leading-relaxed"
                 >
-                  We're sorry, but something unexpected happened. Our team has been notified and is working on a fix.
+                  We&apos;re sorry, but something unexpected happened. Our team has been notified and is working on a fix.
                   <br />
                   <span className="text-sm text-gray-500">
                     Error ID: <code className="bg-gray-100 px-2 py-1 rounded text-xs">{this.state.errorId}</code>
                   </span>
                 </motion.p>
 
-                {/* Action Buttons */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -130,7 +112,6 @@ class ErrorBoundary extends React.Component {
                   </Button>
                 </motion.div>
 
-                {/* Error Details (Development Only) */}
                 {process.env.NODE_ENV === 'development' && this.state.error && (
                   <motion.details
                     initial={{ opacity: 0 }}
@@ -139,7 +120,7 @@ class ErrorBoundary extends React.Component {
                     className="text-left mt-8"
                   >
                     <summary className="cursor-pointer text-sm font-medium text-gray-700 mb-4 hover:text-gray-900">
-                      🐛 Show Error Details (Development)
+                      Show Error Details (Development)
                     </summary>
                     <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                       <div className="mb-4">
@@ -160,7 +141,6 @@ class ErrorBoundary extends React.Component {
                   </motion.details>
                 )}
 
-                {/* Helpful Tips */}
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -169,9 +149,9 @@ class ErrorBoundary extends React.Component {
                 >
                   <p>If this problem persists, please:</p>
                   <ul className="mt-2 space-y-1">
-                    <li>• Clear your browser cache and try again</li>
-                    <li>• Check your internet connection</li>
-                    <li>• Contact our support team with the Error ID above</li>
+                    <li>Clear your browser cache and try again</li>
+                    <li>Check your internet connection</li>
+                    <li>Contact our support team with the Error ID above</li>
                   </ul>
                 </motion.div>
               </CardContent>

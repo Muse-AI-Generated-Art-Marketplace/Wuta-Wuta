@@ -11,7 +11,6 @@ const Tooltip = React.forwardRef(({
 }, ref) => {
   const [isVisible, setIsVisible] = useState(false);
   const timeoutRef = useRef(null);
-  const triggerRef = useRef(null);
   
   const positions = {
     top: 'bottom-full left-1/2 transform -translate-x-1/2 mb-2',

@@ -8,13 +8,14 @@ license = "MIT"
 repository = "https://github.com/olaleyeolajide81-sketch/Wuta-Wuta"
 
 [lib]
-crate-type = ["cdylib"]
+path = "wutawuta_marketplace.rs"
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-soroban-sdk = "1.0.0"
+soroban-sdk = "20.0.0"
 
 [dev-dependencies]
-soroban-sdk = { version = "1.0.0", features = ["testutils"] }
+soroban-sdk = { version = "20.0.0", features = ["testutils"] }
 
 [features]
 default = ["export"]

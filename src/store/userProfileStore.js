@@ -93,10 +93,10 @@ const useUserProfileStore = create(
             updatedAt: new Date().toISOString()
           };
 
-          set(state => ({
+          set({
             profile: updatedProfile,
             loading: false
-          }));
+          });
 
           return updatedProfile;
         } catch (error) {
@@ -106,7 +106,7 @@ const useUserProfileStore = create(
         }
       },
 
-      uploadAvatar: async (file) => {
+      uploadAvatar: async (_file) => {
         try {
           set({ loading: true, error: null });
           
@@ -129,7 +129,7 @@ const useUserProfileStore = create(
         }
       },
 
-      uploadBanner: async (file) => {
+      uploadBanner: async (_file) => {
         try {
           set({ loading: true, error: null });
           
@@ -412,7 +412,7 @@ const useUserProfileStore = create(
 
       loadMoreTransactions: async () => {
         try {
-          const { pagination, transactions } = get().tradingHistory;
+          const { pagination } = get().tradingHistory;
           
           if (!pagination.hasMore) return;
 
@@ -452,7 +452,7 @@ const useUserProfileStore = create(
       getFilteredCollection: () => {
         const { artworks, filters, sortBy } = get().collection;
         
-        let filtered = artworks.filter(artwork => {
+        const filtered = artworks.filter(artwork => {
           if (filters.category !== 'all') {
             // Filter by category based on attributes
             const hasCategory = artwork.attributes?.some(attr => 

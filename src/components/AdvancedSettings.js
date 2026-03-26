@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Settings, 
   Sliders, 
   Zap, 
   Brain, 
   Image as ImageIcon,
-  Eye,
   Save,
   RotateCcw,
   ChevronDown,
@@ -16,6 +14,41 @@ import {
   Cpu,
   Palette
 } from 'lucide-react';
+
+const DEFAULT_PARAMETERS = {
+  temperature: 0.8,
+  topK: 50,
+  topP: 0.9,
+  guidanceScale: 7.5,
+  numInferenceSteps: 50,
+  seed: -1,
+  width: 512,
+  height: 512,
+  quality: 0.9,
+  sharpness: 1.0,
+  contrast: 1.0,
+  saturation: 1.0,
+  strength: 0.8,
+  noiseLevel: 0.1,
+  detailEnhancement: 0.5,
+  colorHarmony: 0.7,
+  compositionBalance: 0.6,
+  batchSize: 1,
+  enableAttentionSlicing: true,
+  enableCpuOffload: false,
+  enableModelCaching: true,
+  maxGenerationTime: 120,
+  negativePrompt: '',
+  promptWeighting: true,
+  crossAttentionControl: 0.5,
+  selfAttentionControl: 0.3,
+  temporalConsistency: 0.8,
+  modelVersion: 'latest',
+  customModelPath: '',
+  loraStrength: 0.7,
+  controlNetStrength: 0.8,
+  embeddingStrength: 0.6
+};
 
 const AdvancedSettings = ({ 
   isOpen, 
@@ -27,58 +60,10 @@ const AdvancedSettings = ({
 }) => {
   const [activeTab, setActiveTab] = useState('generation');
   const [showPresets, setShowPresets] = useState(false);
-
-  // Default advanced parameters
-  const defaultParameters = {
-    // Generation parameters
-    temperature: 0.8,
-    topK: 50,
-    topP: 0.9,
-    guidanceScale: 7.5,
-    numInferenceSteps: 50,
-    seed: -1,
-    
-    // Image-specific parameters
-    width: 512,
-    height: 512,
-    quality: 0.9,
-    sharpness: 1.0,
-    contrast: 1.0,
-    saturation: 1.0,
-    
-    // Style parameters
-    strength: 0.8,
-    noiseLevel: 0.1,
-    detailEnhancement: 0.5,
-    colorHarmony: 0.7,
-    compositionBalance: 0.6,
-    
-    // Performance parameters
-    batchSize: 1,
-    enableAttentionSlicing: true,
-    enableCpuOffload: false,
-    enableModelCaching: true,
-    maxGenerationTime: 120,
-    
-    // Advanced AI parameters
-    negativePrompt: '',
-    promptWeighting: true,
-    crossAttentionControl: 0.5,
-    selfAttentionControl: 0.3,
-    temporalConsistency: 0.8,
-    
-    // Model-specific parameters
-    modelVersion: 'latest',
-    customModelPath: '',
-    loraStrength: 0.7,
-    controlNetStrength: 0.8,
-    embeddingStrength: 0.6
-  };
-
-  const [localParameters, setLocalParameters] = useState({ ...defaultParameters, ...parameters });
+  const [localParameters, setLocalParameters] = useState({ ...DEFAULT_PARAMETERS, ...parameters });
 
   useEffect(() => {
-    setLocalParameters({ ...defaultParameters, ...parameters });
+    setLocalParameters({ ...DEFAULT_PARAMETERS, ...parameters });
   }, [parameters]);
 
   const handleParameterChange = (key, value) => {
@@ -88,8 +73,8 @@ const AdvancedSettings = ({
   };
 
   const resetToDefaults = () => {
-    setLocalParameters(defaultParameters);
-    onParametersChange(defaultParameters);
+    setLocalParameters(DEFAULT_PARAMETERS);
+    onParametersChange(DEFAULT_PARAMETERS);
   };
 
   const exportSettings = () => {
@@ -111,8 +96,8 @@ const AdvancedSettings = ({
       reader.onload = (e) => {
         try {
           const imported = JSON.parse(e.target.result);
-          setLocalParameters({ ...defaultParameters, ...imported });
-          onParametersChange({ ...defaultParameters, ...imported });
+          setLocalParameters({ ...DEFAULT_PARAMETERS, ...imported });
+          onParametersChange({ ...DEFAULT_PARAMETERS, ...imported });
         } catch (error) {
           console.error('Failed to import settings:', error);
         }

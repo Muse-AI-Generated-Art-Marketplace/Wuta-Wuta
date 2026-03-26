@@ -1,8 +1,20 @@
 // Parameter validation utilities for advanced AI settings
 
+const HTML_ESCAPE_MAP = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;'
+};
+
+const escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => HTML_ESCAPE_MAP[character]);
+
 export const validateParameter = (key, value, rules) => {
   const rule = rules[key];
   if (!rule) return { isValid: true, error: null };
+
+  const formatNumber = (number) => (Number.isInteger(number) ? number.toFixed(1) : String(number));
   
   // Type validation
   if (rule.type === 'number') {
@@ -12,11 +24,11 @@ export const validateParameter = (key, value, rules) => {
     
     // Range validation
     if (rule.min !== undefined && value < rule.min) {
-      return { isValid: false, error: `${key} must be at least ${rule.min}` };
+      return { isValid: false, error: `${key} must be at least ${formatNumber(rule.min)}` };
     }
     
     if (rule.max !== undefined && value > rule.max) {
-      return { isValid: false, error: `${key} must be at most ${rule.max}` };
+      return { isValid: false, error: `${key} must be at most ${formatNumber(rule.max)}` };
     }
   }
   
@@ -46,6 +58,7 @@ export const validateParameter = (key, value, rules) => {
 export const validateParameters = (parameters, validationRules) => {
   const errors = [];
   const warnings = [];
+  const formatNumber = (number) => (Number.isInteger(number) ? number.toFixed(1) : String(number));
   
   Object.keys(parameters).forEach(key => {
     const value = parameters[key];
@@ -61,10 +74,10 @@ export const validateParameters = (parameters, validationRules) => {
       // Check for warnings
       if (rule.warningThreshold) {
         if (rule.warningThreshold.min !== undefined && value < rule.warningThreshold.min) {
-          warnings.push(`${key} is below recommended minimum of ${rule.warningThreshold.min}`);
+          warnings.push(`${key} is below recommended minimum of ${formatNumber(rule.warningThreshold.min)}`);
         }
         if (rule.warningThreshold.max !== undefined && value > rule.warningThreshold.max) {
-          warnings.push(`${key} is above recommended maximum of ${rule.warningThreshold.max}`);
+          warnings.push(`${key} is above recommended maximum of ${formatNumber(rule.warningThreshold.max)}`);
         }
       }
     }
@@ -220,7 +233,7 @@ export const sanitizeParameters = (parameters) => {
     
     // Sanitize strings
     if (typeof value === 'string') {
-      sanitized[key] = value.trim().replace(/[<>]/g, '');
+      sanitized[key] = escapeHtml(value.trim());
     } else {
       sanitized[key] = value;
     }

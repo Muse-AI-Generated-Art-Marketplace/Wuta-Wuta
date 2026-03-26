@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   User, 
@@ -13,9 +13,11 @@ import {
   Grid3X3,
   List
 } from 'lucide-react';
+
 import { useMuseStore } from '../store/museStore';
 import { useWalletStore } from '../store/walletStore';
 import { useUserProfileStore } from '../store/userProfileStore';
+
 import ArtworkGrid from './ArtworkGrid';
 import CopyButton from './CopyButton';
 
@@ -28,7 +30,6 @@ const UserProfile = () => {
     loadUserCollection, 
     loadTradingHistory,
     updateCollectionFilters,
-    updateCollectionSort,
     updateCollectionView,
     getFilteredCollection,
     getFilteredTradingHistory

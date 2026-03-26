@@ -1,29 +1,17 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import {
   DollarSign,
   Users,
   TrendingUp,
   Activity,
   ArrowUpRight,
-  ArrowDownRight,
-  Wallet,
-  Clock
+  ArrowDownRight
 } from 'lucide-react';
-import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer } from 'recharts';
-import { useMuseStore } from '../store/museStore';
-import { Card, CardHeader, CardTitle, CardContent, Badge } from './ui';
+import { AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer } from 'recharts';
+
+import { Card, CardHeader, CardTitle, CardContent } from './ui';
 
 const Dashboard = () => {
-  // Stats and activity are currently simulated for demonstration
-  // In a future update, these will be pulled from museStore and on-chain events
-  const stats = {
-    totalFunding: '$28,450',
-    activeContributors: '1,234',
-    projectsFunded: '89',
-    transactionVolume: '$45,678'
-  };
-
   // Mock data for demonstration
   const fundingData = [
     { name: 'Jan', amount: 4000, projects: 12 },

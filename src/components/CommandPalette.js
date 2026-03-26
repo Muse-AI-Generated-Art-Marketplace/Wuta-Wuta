@@ -9,9 +9,6 @@ import {
   History,
   ArrowRight,
   Command,
-  CornerDownLeft,
-  ArrowUp,
-  ArrowDown,
   X
 } from 'lucide-react';
 

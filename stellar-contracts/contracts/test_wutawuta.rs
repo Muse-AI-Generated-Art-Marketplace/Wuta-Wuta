@@ -463,3 +463,102 @@ fn test_unauthorized_listing() {
     // Try to list with unauthorized address - should fail
     client.list_artwork(&unauthorized, &token_id, &1000000, &86400, &false, &None);
 }
+
+#[test]
+fn test_offer_flow() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let admin = Address::generate(&env);
+    let creator = Address::generate(&env);
+    let buyer = Address::generate(&env);
+    let treasury = Address::generate(&env);
+    let payment_token = Address::generate(&env);
+    
+    let contract_id = env.register_contract(None, WutaWutaMarketplace {});
+    let client = WutaWutaMarketplaceClient::new(&env, &contract_id);
+    
+    client.initialize(&admin, &250, &treasury, &1000000, &86400);
+    
+    // Mint artwork
+    let token_id = client.mint_artwork(
+        &creator,
+        &"QmTest123".to_string(),
+        &"Test Artwork".to_string(),
+        &"A test artwork".to_string(),
+        &"Stable Diffusion".to_string(),
+        &[1u8; 32],
+        &500, // 5% royalty
+        &true,
+        &60,
+        &40,
+        &true,
+    );
+
+    // Make an offer
+    let offer_amount = 2000000; // 2 XLM
+    let duration = 3600; // 1 hour
+    
+    let offer_id = client.make_offer(&buyer, &token_id, &offer_amount, &duration, &payment_token);
+    assert_eq!(offer_id, 1);
+    
+    // Verify offer
+    let offers = client.get_offers(&token_id);
+    assert_eq!(offers.len(), 1);
+    let offer = offers.get(0).unwrap();
+    assert_eq!(offer.id, offer_id);
+    assert_eq!(offer.buyer, buyer);
+    assert_eq!(offer.amount, offer_amount);
+    assert_eq!(offer.active, true);
+
+    // Accept offer
+    client.accept_offer(&creator, &token_id, &offer_id);
+    
+    // Verify ownership changed
+    let new_owner = client.get_token_owner(&token_id);
+    assert_eq!(new_owner, buyer);
+    
+    // Verify offer became inactive
+    let updated_offers = client.get_offers(&token_id);
+    assert_eq!(updated_offers.get(0).unwrap().active, false);
+}
+
+#[test]
+fn test_cancel_offer() {
+    let env = Env::default();
+    env.mock_all_auths();
+    
+    let admin = Address::generate(&env);
+    let creator = Address::generate(&env);
+    let buyer = Address::generate(&env);
+    let treasury = Address::generate(&env);
+    let payment_token = Address::generate(&env);
+    
+    let contract_id = env.register_contract(None, WutaWutaMarketplace {});
+    let client = WutaWutaMarketplaceClient::new(&env, &contract_id);
+    
+    client.initialize(&admin, &250, &treasury, &1000000, &86400);
+    
+    let token_id = client.mint_artwork(
+        &creator,
+        &"QmTest123".to_string(),
+        &"Test Artwork".to_string(),
+        &"A test artwork".to_string(),
+        &"Stable Diffusion".to_string(),
+        &[1u8; 32],
+        &500,
+        &true,
+        &60,
+        &40,
+        &true,
+    );
+
+    let offer_id = client.make_offer(&buyer, &token_id, &1000000, &3600, &payment_token);
+    
+    // Cancel offer
+    client.cancel_offer(&buyer, &token_id, &offer_id);
+    
+    // Verify offer is inactive
+    let offers = client.get_offers(&token_id);
+    assert_eq!(offers.get(0).unwrap().active, false);
+}

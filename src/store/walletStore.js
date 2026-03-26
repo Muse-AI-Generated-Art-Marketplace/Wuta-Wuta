@@ -145,6 +145,58 @@ const useWalletStore = create((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  signMessage: async (message) => {
+    if (!get().isConnected || !get().address) {
+      throw new Error('Wallet not connected');
+    }
+
+    const signMessage = getFreighterMethod('signMessage');
+    if (!signMessage) {
+      throw new Error('Freighter signMessage is unavailable');
+    }
+
+    const address = get().address;
+    const attempts = [
+      () => signMessage(message, { address }),
+      () => signMessage(message, address),
+      () => signMessage(message),
+    ];
+
+    let lastError;
+
+    for (const attempt of attempts) {
+      try {
+        const result = await attempt();
+
+        if (typeof result === 'string') {
+          return result;
+        }
+
+        if (result?.signature) {
+          return result.signature;
+        }
+
+        if (result?.signedMessage) {
+          return result.signedMessage;
+        }
+
+        if (result?.data?.signature) {
+          return result.data.signature;
+        }
+
+        if (!result?.error) {
+          return result;
+        }
+
+        lastError = new Error(result.error);
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    throw lastError || new Error('Failed to sign message');
+  },
 }));
 
 export { useWalletStore };
