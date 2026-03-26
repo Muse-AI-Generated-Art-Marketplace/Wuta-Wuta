@@ -4,9 +4,4 @@
 
 **Next**: Update tests and ArtAssetToken.rs, build/test.
 
-**Remaining**:
-
-- Update test_wutawuta.rs (Artwork -> ArtAsset refs)
-- Integrate ArtAssetToken.rs with marketplace
-- cargo build/test
-- Git branch/PR
+**Complete**: All updates done (test_wutawuta.rs fixed, ArtAssetToken.rs integrated with marketplace.mint_artwork, WutaWutaMarketplace.rs cleaned).

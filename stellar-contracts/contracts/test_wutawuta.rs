@@ -294,7 +294,7 @@ fn test_evolve_artwork() {
     assert_eq!(evolutions.get(0).new_ipfs_hash, new_ipfs_hash);
     
     // Verify artwork evolution count updated
-    let artwork = client.get_artwork(&token_id);
+    let artwork = client.get_art_asset(&token_id);
     assert_eq!(artwork.evolution_count, 1);
 }
 
