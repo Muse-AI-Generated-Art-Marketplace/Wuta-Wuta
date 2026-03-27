@@ -13,6 +13,7 @@ import {
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer } from 'recharts';
 import { useMuseStore } from '../store/museStore';
 import { Card, CardHeader, CardTitle, CardContent, Badge } from './ui';
+import ClaimEarningsWidget from './ClaimEarningsWidget';
 
 const Dashboard = () => {
   // Stats and activity are currently simulated for demonstration
@@ -83,6 +84,9 @@ const Dashboard = () => {
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Muse Analytics Dashboard</h1>
         <p className="text-sm sm:text-base text-gray-600 mt-2">Real-time insights and analytics for Web3 funding streams</p>
       </div>
+
+      {/* Claim Earnings Widget (clean, single instance) */}
+      <ClaimEarningsWidget />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
