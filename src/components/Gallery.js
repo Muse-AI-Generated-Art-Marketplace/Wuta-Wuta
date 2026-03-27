@@ -6,6 +6,7 @@ import {
   Search, 
   ShoppingCart,
   TrendingUp,
+  Sparkles,
   DollarSign,
   Filter
 } from 'lucide-react';
