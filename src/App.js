@@ -6,6 +6,8 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import MintingDashboard from './components/MintingDashboard';
 import ArtMintingStepper from './components/ArtMintingStepper';
+import Gallery from './components/Gallery';
+import CreateArt from './components/CreateArt';
 
 const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -52,10 +54,12 @@ const App = () => {
       case 'minting':
         return <MintingDashboard />;
       case 'create':
-        return <ArtMintingStepper />;
+        return <CreateArt />;
       case 'gallery':
-      case 'history':
+        return <Gallery />;
       case 'ai':
+        return <ArtMintingStepper />;
+      case 'history':
       case 'settings':
       default:
         // Render Dashboard as fallback for unhandled tabs
