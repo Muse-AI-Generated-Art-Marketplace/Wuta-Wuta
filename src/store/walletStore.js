@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import * as freighterApi from '@stellar/freighter-api';
 
 // Helper to get functions regardless of import structure
@@ -18,17 +19,19 @@ const getFreighterMethod = (methodName) => {
   return null;
 };
 
-const useWalletStore = create((set, get) => ({
-  // State
-  isConnecting: false,
-  isConnected: false,
-  address: null,
-  network: null,
-  error: null,
-  isLoading: false,
+const useWalletStore = create(
+  persist(
+    (set, get) => ({
+      // State
+      isConnecting: false,
+      isConnected: false,
+      address: null,
+      network: null,
+      error: null,
+      isLoading: false,
 
-  // Actions
-  checkConnection: async () => {
+      // Actions
+      checkConnection: async () => {
     try {
       const isConnected = getFreighterMethod('isConnected');
       const getPublicKey = getFreighterMethod('getPublicKey');
@@ -64,9 +67,9 @@ const useWalletStore = create((set, get) => ({
       console.error('Check connection error:', error);
       return false;
     }
-  },
+      },
 
-  connectWallet: async () => {
+      connectWallet: async () => {
     try {
       set({ isConnecting: true, error: null });
 
@@ -115,6 +118,8 @@ const useWalletStore = create((set, get) => ({
 
       // Save connection preference
       localStorage.setItem('walletConnected', 'true');
+      localStorage.setItem('walletAddress', String(publicKey));
+      localStorage.setItem('walletNetwork', String(networkName));
 
     } catch (error) {
       console.error('Failed to connect wallet:', error);
@@ -123,9 +128,9 @@ const useWalletStore = create((set, get) => ({
         error: error.message
       });
     }
-  },
+      },
 
-  disconnectWallet: () => {
+      disconnectWallet: () => {
     set({
       isConnecting: false,
       isConnected: false,
@@ -134,19 +139,21 @@ const useWalletStore = create((set, get) => ({
       error: null,
     });
     localStorage.removeItem('walletConnected');
-  },
+    localStorage.removeItem('walletAddress');
+    localStorage.removeItem('walletNetwork');
+      },
 
-  updateAccount: (newAddress) => {
+      updateAccount: (newAddress) => {
     set({ address: newAddress });
   },
 
   updateNetwork: (newNetwork) => {
     set({ network: newNetwork });
-  },
+      },
 
-  clearError: () => set({ error: null }),
+      clearError: () => set({ error: null }),
 
-  signMessage: async (message) => {
+      signMessage: async (message) => {
     if (!get().isConnected || !get().address) {
       throw new Error('Wallet not connected');
     }
@@ -196,7 +203,49 @@ const useWalletStore = create((set, get) => ({
     }
 
     throw lastError || new Error('Failed to sign message');
+      },
+
+      // Persistence helpers
+      getPersistedData: () => {
+    try {
+      const stored = localStorage.getItem('wallet-storage');
+      if (stored) {
+        return JSON.parse(stored);
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to get persisted data:', error);
+      return null;
+    }
+      },
+
+      clearPersistedData: () => {
+    try {
+      localStorage.removeItem('wallet-storage');
+      localStorage.removeItem('walletConnected');
+      localStorage.removeItem('walletAddress');
+      localStorage.removeItem('walletNetwork');
+    } catch (error) {
+      console.error('Failed to clear persisted data:', error);
+    }
   },
-}));
+}),
+{
+  name: 'wallet-storage',
+  storage: createJSONStorage(() => localStorage),
+  partialize: (state) => ({
+    address: state.address,
+    network: state.network,
+    isConnected: state.isConnected
+  }),
+  onRehydrateStorage: () => (state, error) => {
+    if (error) {
+      console.error('Failed to rehydrate wallet state:', error);
+    } else {
+      console.log('Wallet state rehydrated successfully');
+    }
+  }
+}
+);
 
 export { useWalletStore };
