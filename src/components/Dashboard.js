@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   DollarSign,
@@ -11,22 +11,47 @@ import {
   Clock
 } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer } from 'recharts';
+import { useDripsStore } from '../store/dripsStore';
 import { useMuseStore } from '../store/museStore';
 import { Card, CardHeader, CardTitle, CardContent, Badge } from './ui';
 import ClaimEarningsWidget from './ClaimEarningsWidget';
 
 const Dashboard = () => {
-  // Stats and activity are currently simulated for demonstration
-  // In a future update, these will be pulled from museStore and on-chain events
-  const stats = {
-    totalFunding: '$28,450',
-    activeContributors: '1,234',
-    projectsFunded: '89',
-    transactionVolume: '$45,678'
-  };
+  const { 
+    stats, 
+    recentActivity, 
+    topProjects, 
+    fundingHistory, 
+    contributorMetrics,
+    isLoading, 
+    error,
+    initializeDrips,
+    refreshData 
+  } = useDripsStore();
 
-  // Mock data for demonstration
-  const fundingData = [
+  // Initialize Drips on mount
+  useEffect(() => {
+    initializeDrips();
+  }, []);
+
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(refreshData, 30000);
+    return () => clearInterval(interval);
+  }, [refreshData]);
+
+  // Format stats for display
+  const formatStats = (stats) => ({
+    totalFunding: `$${(stats.totalFunding || 0).toLocaleString()}`,
+    activeContributors: (stats.activeContributors || 0).toLocaleString(),
+    projectsFunded: (stats.projectsFunded || 0).toLocaleString(),
+    transactionVolume: `$${(stats.transactionVolume || 0).toLocaleString()}`
+  });
+
+  const formattedStats = formatStats(stats);
+
+  // Use data from dripsStore, fallback to empty arrays if not loaded
+  const fundingData = fundingHistory.length > 0 ? fundingHistory : [
     { name: 'Jan', amount: 4000, projects: 12 },
     { name: 'Feb', amount: 3000, projects: 15 },
     { name: 'Mar', amount: 5000, projects: 18 },
@@ -35,19 +60,34 @@ const Dashboard = () => {
     { name: 'Jun', amount: 7390, projects: 30 },
   ];
 
-  const contributorData = [
+  const contributorData = contributorMetrics.length > 0 ? contributorMetrics : [
     { name: 'New Contributors', value: 400, color: '#8b5cf6' },
     { name: 'Active Contributors', value: 300, color: '#3b82f6' },
     { name: 'Top Contributors', value: 200, color: '#10b981' },
     { name: 'Inactive Contributors', value: 100, color: '#6b7280' },
   ];
 
-  const recentTransactions = [
+  const recentTransactions = recentActivity.length > 0 ? recentActivity.map(activity => ({
+    id: activity.id,
+    from: activity.project || 'Unknown',
+    to: activity.type === 'funding' ? 'Treasury' : 'Contributor',
+    amount: activity.amount,
+    time: new Date(activity.timestamp).toLocaleTimeString(),
+    type: activity.type
+  })) : [
     { id: 1, from: '0x1234...5678', to: 'Project Alpha', amount: '0.5 ETH', time: '2 min ago', type: 'funding' },
     { id: 2, from: '0xabcd...efgh', to: 'Project Beta', amount: '1.2 ETH', time: '5 min ago', type: 'funding' },
     { id: 3, from: '0x9876...5432', to: 'Project Gamma', amount: '0.3 ETH', time: '12 min ago', type: 'funding' },
     { id: 4, from: 'Project Alpha', to: 'Contributor A', amount: '0.1 ETH', time: '15 min ago', type: 'distribution' },
     { id: 5, from: '0x5678...1234', to: 'Project Delta', amount: '2.0 ETH', time: '20 min ago', type: 'funding' },
+  ];
+
+  const topProjectsList = topProjects.length > 0 ? topProjects : [
+    { name: 'DeFi Protocol', funding: '$12,500', contributors: 45, growth: '+23%' },
+    { name: 'NFT Marketplace', funding: '$8,200', contributors: 32, growth: '+15%' },
+    { name: 'DAO Tools', funding: '$6,800', contributors: 28, growth: '+8%' },
+    { name: 'Web3 Gaming', funding: '$5,400', contributors: 21, growth: '+12%' },
+    { name: 'Cross-chain Bridge', funding: '$4,900', contributors: 18, growth: '+5%' },
   ];
 
   const StatCard = ({ title, value, change, icon: Icon, color }) => (
@@ -82,7 +122,11 @@ const Dashboard = () => {
       {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Muse Analytics Dashboard</h1>
-        <p className="text-sm sm:text-base text-gray-600 mt-2">Real-time insights and analytics for Web3 funding streams</p>
+        <p className="text-sm sm:text-base text-gray-600 mt-2">
+          Real-time insights and analytics for Web3 funding streams
+          {isLoading && <span className="ml-2 text-xs">(Loading...)</span>}
+          {error && <span className="ml-2 text-xs text-red-500">(Error: {error})</span>}
+        </p>
       </div>
 
       {/* Claim Earnings Widget (clean, single instance) */}
@@ -92,28 +136,28 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
           title="Total Funding"
-          value="$28,450"
+          value={formattedStats.totalFunding}
           change={12.5}
           icon={DollarSign}
           color="bg-blue-500"
         />
         <StatCard
           title="Active Contributors"
-          value="1,234"
+          value={formattedStats.activeContributors}
           change={8.2}
           icon={Users}
           color="bg-purple-500"
         />
         <StatCard
           title="Projects Funded"
-          value="89"
+          value={formattedStats.projectsFunded}
           change={15.3}
           icon={TrendingUp}
           color="bg-green-500"
         />
         <StatCard
           title="Transaction Volume"
-          value="$45,678"
+          value={formattedStats.transactionVolume}
           change={-2.1}
           icon={Activity}
           color="bg-orange-500"
@@ -233,6 +277,18 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-xl">
+            <div className="flex items-center space-x-3">
+              <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-gray-900 dark:text-white font-medium">Loading dashboard data...</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
