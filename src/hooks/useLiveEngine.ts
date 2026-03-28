@@ -24,6 +24,7 @@ export const useLiveEngine = (contractAddress: string) => {
       
       addActivity({
         id: event.transactionHash,
+        chain: 'EVM',
         type: isMint ? 'MINT' : 'TRADE',
         from,
         to,

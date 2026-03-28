@@ -10,7 +10,7 @@ import {
     AlertCircle,
     RefreshCw,
     Coins,
-    XLM,
+    Star,
     ExternalLink
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Modal } from './ui';
@@ -223,12 +223,12 @@ const ClaimEarningsWidget = () => {
                                 <p className="text-sm font-medium text-gray-600">Stellar</p>
                                 <p className="text-2xl font-bold text-gray-900">{earnings.stellar} XLM</p>
                                 <div className="flex items-center mt-1">
-                                    <XLM className="w-4 h-4 text-purple-500 mr-1" />
+                                    <Star className="w-4 h-4 text-purple-500 mr-1" />
                                     <span className="text-sm text-purple-500 font-medium">Soroban</span>
                                 </div>
                             </div>
                             <div className="p-3 rounded-full bg-purple-100">
-                                <XLM className="w-6 h-6 text-purple-600" />
+                                <Star className="w-6 h-6 text-purple-600" />
                             </div>
                         </div>
                     </CardContent>

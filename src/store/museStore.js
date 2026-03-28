@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { SorobanRpc } from '@sorobanrpc';
+import { Server } from 'soroban-client';
 import { Keypair, TransactionBuilder, Networks, BASE_FEE } from '@stellar/stellar-sdk';
 
 const useMuseStore = create((set, get) => ({
@@ -31,7 +31,7 @@ const useMuseStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const rpcUrl = process.env.REACT_APP_STELLAR_RPC_URL || 'https://soroban-testnet.stellar.org';
-      const stellarClient = new SorobanRpc(rpcUrl);
+      const stellarClient = new Server(rpcUrl);
       
       const contracts = {
         artAssetToken: process.env.REACT_APP_ART_ASSET_TOKEN_CONTRACT,
