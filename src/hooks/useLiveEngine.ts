@@ -30,6 +30,7 @@ export const useLiveEngine = (contractAddress: string) => {
         to,
         tokenId: tokenId.toString(),
         timestamp: Date.now(),
+        chain: "STELLAR",  // Added missing property
       });
     };
 

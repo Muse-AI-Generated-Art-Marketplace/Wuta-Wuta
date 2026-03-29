@@ -657,7 +657,7 @@ export default function ArtMintingStepper() {
         </div>
         <div className="tx-hash">TX: {fakeHash}</div>
         <div style={{ display:"flex", gap:10, marginTop:8, flexWrap:"wrap", justifyContent:"center" }}>
-          <button className="btn btn-primary" onClick={reset}>Mint Another</button>
+          <button data-testid="mint-button" className="btn btn-primary" onClick={reset}>Mint Another</button>
           <button className="btn btn-ghost">View on Marketplace</button>
         </div>
       </div>
