@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { CheckCircle2, Cpu, Plus, RefreshCw, Settings2, Sparkles, Loader2 } from 'lucide-react';
+import { CheckCircle2, Cpu, Plus, RefreshCw, Settings2, Sparkles, Loader2, Eye } from 'lucide-react';
+import { sendPrompt } from '../ai/wutaAi';
 
 import { useMuseStore } from '../store/museStore';
 import { useTransactionNotificationStore } from '../store/transactionNotificationStore';
@@ -59,7 +60,7 @@ const defaultAdvancedParameters = {
 const CreateArt = () => {
   const store = useMuseStore();
   const { addTransaction, updateTransactionStatus, STATUS } = useTransactionNotificationStore();
-  
+
   const isConnected = store.isConnected || Boolean(store.userAddress);
   const isLoading = store.isLoading;
   const clearError = store.clearError;
@@ -86,6 +87,7 @@ const CreateArt = () => {
   const [submitError, setSubmitError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [creationProgress, setCreationProgress] = useState(0);
+  const [previewArtwork, setPreviewArtwork] = useState(null);
 
   // Steps for progress indicator
   const creationSteps = [
@@ -196,16 +198,17 @@ const CreateArt = () => {
     try {
       setCurrentStep(0);
       setCreationProgress(10);
-      
+
       // Step 1: Metadata upload simulation
       await new Promise(r => setTimeout(r, 1000));
       setCreationProgress(25);
-      
+
       setCurrentStep(1);
       // Step 2: AI Generation
-      await new Promise(r => setTimeout(r, 2000));
+      const generatedArtwork = await sendPrompt(form.prompt.trim());
+      setPreviewArtwork(generatedArtwork);
       setCreationProgress(50);
-      
+
       setCurrentStep(2);
       // Step 3: Blockchain submission
       const payload = {
@@ -220,7 +223,7 @@ const CreateArt = () => {
 
       await createArtworkAction(payload);
       setCreationProgress(85);
-      
+
       setCurrentStep(3);
       // Step 4: Finalizing
       await new Promise(r => setTimeout(r, 1000));
@@ -228,14 +231,15 @@ const CreateArt = () => {
 
       updateTransactionStatus(txId, STATUS.CONFIRMED);
       setSuccessMessage('Artwork created successfully.');
-      
+
       setForm((current) => ({
         ...current,
         prompt: '',
         tokenURI: '',
         contentHash: '',
       }));
-      
+      setPreviewArtwork(null);
+
       setTimeout(() => {
         setCurrentStep(-1);
         setCreationProgress(0);
@@ -289,7 +293,7 @@ const CreateArt = () => {
             </h3>
             <ProgressIndicator steps={creationSteps} currentStep={currentStep} />
             <div className="mt-6 h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-              <div 
+              <div
                 className="h-full bg-gradient-to-r from-purple-600 to-blue-600 transition-all duration-500 ease-out"
                 style={{ width: `${creationProgress}%` }}
               />
@@ -490,7 +494,38 @@ const CreateArt = () => {
               <p>{successMessage}</p>
             </div>
           )}
+          {previewArtwork && (
+            <div className="mt-6 rounded-3xl border border-purple-200 bg-purple-50 p-5 dark:border-purple-900/40 dark:bg-purple-950/20">
+              <div className="mb-4 flex items-center gap-2">
+                <Eye className="h-5 w-5 text-purple-600" />
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                  Generated Artwork Preview
+                </h3>
+              </div>
 
+              <div className="grid gap-5 md:grid-cols-[220px_1fr]">
+                {previewArtwork.imageBase64 && (
+                  <img
+                    src={`data:image/png;base64,${previewArtwork.imageBase64}`}
+                    alt={previewArtwork.title || 'Generated artwork preview'}
+                    className="h-56 w-full rounded-2xl object-cover shadow-md"
+                  />
+                )}
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                    {previewArtwork.title}
+                  </h4>
+                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                    {previewArtwork.description}
+                  </p>
+                  <p className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+                    Prompt: {previewArtwork.prompt || form.prompt}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               Contribution split: <span className="font-semibold text-gray-900 dark:text-white">{form.humanContribution}% Human / {form.aiContribution}% AI</span>
