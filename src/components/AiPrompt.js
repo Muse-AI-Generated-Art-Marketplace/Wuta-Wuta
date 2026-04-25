@@ -51,10 +51,12 @@ const AiPrompt = () => {
             <>
               <h3 className="text-xl font-medium">{result.title}</h3>
               <p className="text-sm text-gray-600 mb-3">{result.description}</p>
-              {result.imageBase64 && (
+              const imgSrc = getImageSrc(result);
+
+              {imgSrc && (
                 <img
+                  src={imgSrc}
                   alt={result.title}
-                  src={`data:image/png;base64,${result.imageBase64}`}
                   className="max-w-full h-auto mb-3"
                 />
               )}
