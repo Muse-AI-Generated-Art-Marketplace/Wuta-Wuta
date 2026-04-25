@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { LayoutDashboard, Image, PlusCircle, History, Sparkles, Settings as SettingsIcon, Send } from 'lucide-react';
+import { LayoutDashboard, Image, PlusCircle, History, Sparkles, Settings as SettingsIcon, Send, Heart } from 'lucide-react';
 
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
@@ -10,6 +10,7 @@ import Gallery from './components/Gallery';
 import CreateArt from './components/CreateArt';
 import Settings from './components/Settings';
 import TransactionHistory from './components/TransactionHistory';
+import FavoritesPage from './pages/FavoritesPage';
 import ThemeProvider from './contexts/ThemeContext';
 import { useWalletStore } from './store/walletStore';
 import { useMuseStore } from './store/museStore';
@@ -51,6 +52,7 @@ const App = () => {
   const navigation = useMemo(
     () => [
       { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
+      { id: 'favorites', name: 'Favorites', icon: Heart },
       { id: 'gallery', name: 'Gallery', icon: Image },
       { id: 'create', name: 'Create', icon: PlusCircle },
       { id: 'minting', name: 'Minting', icon: Send },
@@ -78,6 +80,8 @@ const App = () => {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard />;
+      case 'favorites':
+        return <FavoritesPage />;
       case 'minting':
         return <MintingDashboard />;
       case 'create':

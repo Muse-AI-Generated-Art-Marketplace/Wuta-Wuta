@@ -26,6 +26,54 @@ model User {
   bids            Bid[]
   tradesAsSeller  TradeHistory[] @relation("Seller")
   tradesAsBuyer   TradeHistory[] @relation("Buyer")
+  
+  // Favorites & Collections
+  favorites       Favorite[]
+  collections     Collection[]
+}
+
+// Favorites - users can favorite any artwork
+model Favorite {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  artAsset    ArtAsset @relation(fields: [artAssetId], references: [id])
+  artAssetId  String
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, artAssetId]) // One favorite per artwork per user
+  @@index([userId])
+  @@index([artAssetId])
+}
+
+// Collections - users can organize artworks into custom collections
+model Collection {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  coverImage  String?
+  isPublic    Boolean       @default(true)
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  artworks    CollectionArtwork[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+// Junction table for Collection <-> ArtAsset many-to-many
+model CollectionArtwork {
+  id           String     @id @default(uuid())
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+  artAsset     ArtAsset   @relation(fields: [artAssetId], references: [id])
+  artAssetId   String
+  addedAt      DateTime   @default(now())
+
+  @@unique([collectionId, artAssetId])
+  @@index([collectionId])
+  @@index([artAssetId])
 }
 
 model ArtAsset {
@@ -58,6 +106,10 @@ model ArtAsset {
   evolutions        Evolution[]
   bids              Bid[]
   tradeHistory      TradeHistory[]
+  
+  // Favorites & Collections relations
+  favorites         Favorite[]
+  collectionItems    CollectionArtwork[]
   
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt

@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Eye, Filter, Search, ShoppingCart, Sparkles, X } from 'lucide-react';
+import { Eye, Filter, Search, ShoppingCart, Sparkles, X, Heart } from 'lucide-react';
 
 import { useMuseStore } from '../store/museStore';
+import FavoriteButton from './FavoriteButton';
 
 function formatAddress(address = '') {
   if (!address) return 'Unknown creator';
@@ -349,6 +350,15 @@ const Gallery = () => {
                           Evolvable
                         </span>
                       )}
+                    </div>
+
+                    {/* Favorite button */}
+                    <div className="absolute right-4 top-4">
+                      <FavoriteButton 
+                        artworkId={artwork.id} 
+                        artworkTitle={artwork.title}
+                        size="sm"
+                      />
                     </div>
                   </div>
 
