@@ -20,7 +20,11 @@ const MAX_RECONNECT_ATTEMPTS = 10;
  */
 export function useStellarActivityFeed() {
   const addActivity = useActivityStore((state) => state.addActivity);
-  const wsRef       = useRef<WebSocket | null>(null);
+  const addPriceUpdate = useActivityStore((state) => state.addPriceUpdate);
+  const addNewArtwork = useActivityStore((state) => state.addNewArtwork);
+  const addBidUpdate = useActivityStore((state) => state.addBidUpdate);
+  
+  const wsRef = useRef<WebSocket | null>(null);
   const attemptsRef = useRef(0);
   const unmountedRef = useRef(false);
 
@@ -51,19 +55,28 @@ export function useStellarActivityFeed() {
           return;
         }
 
-        if (!isActivityMessage(payload)) return;
-
-        addActivity({
-          id:        payload.data.id,
-          chain:     'STELLAR',
-          type:      payload.data.type,
-          from:      payload.data.from,
-          to:        payload.data.to,
-          tokenId:   payload.data.tokenId,
-          price:     payload.data.price,
-          timestamp: payload.data.timestamp ?? Date.now(),
-          eventType: payload.data.eventType,
-        });
+        // Handle different message types
+        if (isActivityMessage(payload)) {
+          addActivity({
+            id:        payload.data.id,
+            chain:     'STELLAR',
+            type:      payload.data.type,
+            from:      payload.data.from,
+            to:        payload.data.to,
+            tokenId:   payload.data.tokenId,
+            price:     payload.data.price,
+            timestamp: payload.data.timestamp ?? Date.now(),
+            eventType: payload.data.eventType,
+          });
+        } else if (isPriceUpdateMessage(payload)) {
+          addPriceUpdate(payload.data);
+        } else if (isNewArtworkMessage(payload)) {
+          addNewArtwork(payload.data);
+        } else if (isBidUpdateMessage(payload)) {
+          addBidUpdate(payload.data);
+        } else {
+          console.warn('[LiveFeed] Unknown message type:', payload);
+        }
       };
 
       ws.onerror = (err) => {
@@ -84,7 +97,7 @@ export function useStellarActivityFeed() {
       unmountedRef.current = true;
       wsRef.current?.close();
     };
-  }, [addActivity]);
+  }, [addActivity, addPriceUpdate, addNewArtwork, addBidUpdate]);
 }
 
 // ── Type guard ────────────────────────────────────────────────────────────────
@@ -108,6 +121,72 @@ function isActivityMessage(payload: unknown): payload is ActivityMessage {
     typeof payload === 'object' &&
     payload !== null &&
     (payload as any).type === 'activity' &&
+    typeof (payload as any).data === 'object'
+  );
+}
+
+interface PriceUpdateMessage {
+  type: 'price_update';
+  data: {
+    tokenId: string;
+    currentPrice: number;
+    previousPrice: number;
+    change: number;
+    changePercent: number;
+    timestamp: number;
+    currency: 'XLM' | 'ETH';
+  };
+}
+
+function isPriceUpdateMessage(payload: unknown): payload is PriceUpdateMessage {
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    (payload as any).type === 'price_update' &&
+    typeof (payload as any).data === 'object'
+  );
+}
+
+interface NewArtworkMessage {
+  type: 'new_artwork';
+  data: {
+    id: string;
+    title: string;
+    creator: string;
+    imageUrl: string;
+    initialPrice: number;
+    timestamp: number;
+    currency: 'XLM' | 'ETH';
+  };
+}
+
+function isNewArtworkMessage(payload: unknown): payload is NewArtworkMessage {
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    (payload as any).type === 'new_artwork' &&
+    typeof (payload as any).data === 'object'
+  );
+}
+
+interface BidUpdateMessage {
+  type: 'bid_update';
+  data: {
+    artworkId: string;
+    bidId: string;
+    bidder: string;
+    amount: number;
+    timestamp: number;
+    isHighest: boolean;
+    currency: 'XLM' | 'ETH';
+  };
+}
+
+function isBidUpdateMessage(payload: unknown): payload is BidUpdateMessage {
+  return (
+    typeof payload === 'object' &&
+    payload !== null &&
+    (payload as any).type === 'bid_update' &&
     typeof (payload as any).data === 'object'
   );
 }

@@ -5,6 +5,7 @@ const axios = require('axios');
 const StellarListener = require('./stellarListener.js');
 const broadcaster = require('./activityBroadcaster.js');
 const ogRoutes = require('./routes/ogRoutes');
+const websocketRoutes = require('./routes/websocketRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -94,6 +95,9 @@ app.get('/api/health', (req, res) => {
 
 // OpenGraph Image Generation Routes
 app.use('/api/og', ogRoutes);
+
+// WebSocket Event Routes
+app.use('/api/websocket', websocketRoutes);
 
 // Stellar endpoints (unchanged)
 app.get('/api/stellar/stats', async (req, res) => {
