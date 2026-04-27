@@ -4,6 +4,8 @@ permissions:
   contents: read
   issues: write
   pull-requests: write
+  security-events: write
+  actions: read
 
 on:
   push:
@@ -74,15 +76,15 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         
     - name: Run CodeQL analysis
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: javascript
         
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+      uses: github/codeql-action/autobuild@v3
       
     - name: Perform CodeQL analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
 
   smart-contract-security:
     name: Smart Contract Security

@@ -1,0 +1,15 @@
+{
+  "welcome": "Welcome to Wuta-Wuta",
+  "errors": {
+    "not_found": "Resource not found",
+    "unauthorized": "Unauthorized access",
+    "bad_request": "Invalid request",
+    "server_error": "Internal server error"
+  },
+  "success": {
+    "created": "Resource created successfully",
+    "updated": "Resource updated successfully",
+    "deleted": "Resource deleted successfully"
+  }
+}
+Add English translations

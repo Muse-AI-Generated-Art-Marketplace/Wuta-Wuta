@@ -128,16 +128,18 @@ jobs:
           curl -f http://127.0.0.1:8000/health || (kill $RPC_PID && exit 1)
           echo \"LOCAL_RPC_PID=$RPC_PID\" >> $GITHUB_ENV
 
-      - name: 🔗 Install Node & deps
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-        env:
-          SOROBAN_RPC_URL: http://127.0.0.1:8000
-        run: |
-          cd stellar-contracts && npm ci
+      - - name: 🔗 Install Node
+  uses: actions/setup-node@v4
+  with:
+    node-version: '20'
+    cache: 'npm'
+    cache-dependency-path: stellar-contracts/package-lock.json
 
+- name: 📦 Install Node dependencies
+  env:
+    SOROBAN_RPC_URL: http://127.0.0.1:8000
+  run: |
+    cd stellar-contracts && npm ci
       - name: 🧪 Run mainnet fork tests + gas analysis
         env:
           SOROBAN_RPC_URL: http://127.0.0.1:8000

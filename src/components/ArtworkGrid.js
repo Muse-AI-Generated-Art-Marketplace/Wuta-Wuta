@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Eye, Sparkles, TrendingUp } from 'lucide-react';
+import FavoriteButton from './FavoriteButton';
 
 // ---------------------------------------------------------------------------
 // ArtCardSkeleton — shimmering placeholder while Stellar data loads
@@ -81,6 +82,15 @@ const ArtCard = ({ artwork, listing, onBuyArtwork, onAnalyzeArtwork, address }) 
               <TrendingUp className="w-3 h-3" /> Evolvable
             </span>
           )}
+        </div>
+
+        {/* Favorite button */}
+        <div className="absolute top-3 right-3">
+          <FavoriteButton 
+            artworkId={artwork.id} 
+            artworkTitle={artwork.title}
+            size="sm"
+          />
         </div>
 
         {/* Analyse button (owner only, unanalysed) */}

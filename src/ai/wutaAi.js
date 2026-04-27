@@ -18,7 +18,11 @@ async function callAiProxy(prompt) {
   } catch (err) {
     // Fail silently to allow fallback to a local mock
     console.warn('AI proxy call failed, using mock:', err.message);
-    return null;
+    return {
+      ...transformToEngineFormat(result),
+      isMock: !remote
+    };
+
   }
 }
 

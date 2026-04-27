@@ -1,38 +1,38 @@
-import 'dotenv/config';
-import { createApp } from './app';
-import { config } from './config/env';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+import i18next from './i18n';
+import { i18nMiddleware } from './middleware/i18n.middleware';
 
-/**
- * Entry point for the Wuta-Wuta Backend API.
- */
-const startServer = (): void => {
-  try {
-    const app = createApp();
+dotenv.config();
 
-    const server = app.listen(config.port, () => {
-      console.log(`
-🚀 Wuta-Wuta Backend API is running!
-🌐 URL: http://localhost:${config.port}
-📂 Base path: /api
-🔧 Environment: ${config.nodeEnv}
-      `);
-    });
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-    // Handle graceful shutdown
-    const shutdown = (signal: string) => {
-      console.log(`\n[${signal}] Shutting down gracefully...`);
-      server.close(() => {
-        console.log('HTTP server closed.');
-        process.exit(0);
-      });
-    };
+// Middleware
+app.use(cors());
+app.use(helmet());
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-    process.on('SIGTERM', () => shutdown('SIGTERM'));
-    process.on('SIGINT', () => shutdown('SIGINT'));
-  } catch (err) {
-    console.error('Fatal error during bootstrap:', err);
-    process.exit(1);
-  }
-};
+// i18n Middleware (multi-language support)
+app.use(i18nMiddleware);
 
-startServer();
+// Test route with i18n
+app.get('/', (req, res) => {
+  res.json({ message: i18next.t('welcome') });
+});
+
+// Error handling middleware
+app.use((req, res) => {
+  res.status(404).json({ error: i18next.t('errors.not_found') });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+export default app;

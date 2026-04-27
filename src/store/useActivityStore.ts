@@ -15,14 +15,58 @@ export interface Activity {
   eventType?: string;
 }
 
+export interface PriceUpdate {
+  tokenId: string;
+  currentPrice: number;
+  previousPrice: number;
+  change: number;
+  changePercent: number;
+  timestamp: number;
+  currency: 'XLM' | 'ETH';
+}
+
+export interface NewArtwork {
+  id: string;
+  title: string;
+  creator: string;
+  imageUrl: string;
+  initialPrice: number;
+  timestamp: number;
+  currency: 'XLM' | 'ETH';
+}
+
+export interface BidUpdate {
+  artworkId: string;
+  bidId: string;
+  bidder: string;
+  amount: number;
+  timestamp: number;
+  isHighest: boolean;
+  currency: 'XLM' | 'ETH';
+}
+
 interface ActivityState {
   activities: Activity[];
+  priceUpdates: PriceUpdate[];
+  newArtworks: NewArtwork[];
+  bidUpdates: BidUpdate[];
+  
+  // Actions
   addActivity: (activity: Activity) => void;
+  addPriceUpdate: (priceUpdate: PriceUpdate) => void;
+  addNewArtwork: (artwork: NewArtwork) => void;
+  addBidUpdate: (bidUpdate: BidUpdate) => void;
   clearActivities: () => void;
+  clearPriceUpdates: () => void;
+  clearNewArtworks: () => void;
+  clearBidUpdates: () => void;
 }
 
 export const useActivityStore = create<ActivityState>((set) => ({
   activities: [],
+  priceUpdates: [],
+  newArtworks: [],
+  bidUpdates: [],
 
   addActivity: (activity) =>
     set((state) => ({
@@ -32,5 +76,23 @@ export const useActivityStore = create<ActivityState>((set) => ({
         : [activity, ...state.activities].slice(0, 50),
     })),
 
+  addPriceUpdate: (priceUpdate) =>
+    set((state) => ({
+      priceUpdates: [priceUpdate, ...state.priceUpdates].slice(0, 100),
+    })),
+
+  addNewArtwork: (artwork) =>
+    set((state) => ({
+      newArtworks: [artwork, ...state.newArtworks].slice(0, 50),
+    })),
+
+  addBidUpdate: (bidUpdate) =>
+    set((state) => ({
+      bidUpdates: [bidUpdate, ...state.bidUpdates].slice(0, 100),
+    })),
+
   clearActivities: () => set({ activities: [] }),
+  clearPriceUpdates: () => set({ priceUpdates: [] }),
+  clearNewArtworks: () => set({ newArtworks: [] }),
+  clearBidUpdates: () => set({ bidUpdates: [] }),
 }));
