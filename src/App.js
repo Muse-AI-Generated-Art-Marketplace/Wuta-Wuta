@@ -19,6 +19,8 @@ import TransactionHistory from './components/TransactionHistory';
 import Settings from './components/Settings';
 import EvolutionLab from './components/EvolutionLab';
 import { NotificationContainer } from './components/ui/ToastNotification';
+import { useStellarActivityFeed } from './hooks/useStellarActivityFeed';
+import { useLiveEngine } from './hooks/useLiveEngine';
 
 const navigation = [
   { id: 'dashboard', name: 'Dashboard', icon: Home },
@@ -33,6 +35,10 @@ const navigation = [
 const App = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Activate real-time data feeds
+  useStellarActivityFeed();
+  useLiveEngine(process.env.REACT_APP_MUSE_CONTRACT_ADDRESS);
 
   const activeComponent = useMemo(() => {
     switch (activeTab) {

@@ -68,10 +68,10 @@ const MarketStats = () => {
   }, [activities]);
 
   const marketSummary = [
-    { label: 'Floor Price', value: '0.45 ETH', change: '+5.2%', icon: ShoppingCart, color: 'text-purple-500', bg: 'bg-purple-50' },
-    { label: 'Volume 24h', value: '12.8 ETH', change: '+12.5%', icon: Activity, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Market Cap', value: '1,250 ETH', change: '+2.1%', icon: Globe, color: 'text-green-500', bg: 'bg-green-50' },
-    { label: 'Total Owners', value: '856', change: '+8', icon: Users, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { label: 'Floor Price', value: '0.45 ETH', change: '+5.2%', icon: ShoppingCart, color: 'text-purple-500', bg: 'bg-purple-50', sparkline: [0.4, 0.42, 0.41, 0.45, 0.44, 0.48, 0.45] },
+    { label: 'Volume 24h', value: '12.8 ETH', change: '+12.5%', icon: Activity, color: 'text-blue-500', bg: 'bg-blue-50', sparkline: [10, 15, 8, 12, 18, 14, 20] },
+    { label: 'Market Cap', value: '1,250 ETH', change: '+2.1%', icon: Globe, color: 'text-green-500', bg: 'bg-green-50', sparkline: [1200, 1210, 1220, 1215, 1230, 1245, 1250] },
+    { label: 'Total Owners', value: '856', change: '+8', icon: Users, color: 'text-orange-500', bg: 'bg-orange-50', sparkline: [840, 842, 845, 848, 850, 852, 856] },
   ];
 
   return (
@@ -92,6 +92,19 @@ const MarketStats = () => {
                     {stat.change}
                   </span>
                 </div>
+              </div>
+              <div className="flex-1 h-8 ml-auto min-w-[60px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={stat.sparkline.map(v => ({ v }))}>
+                    <Line 
+                      type="monotone" 
+                      dataKey="v" 
+                      stroke={stat.change.startsWith('+') ? '#10b981' : '#ef4444'} 
+                      strokeWidth={2} 
+                      dot={false} 
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
             </CardContent>
           </Card>
