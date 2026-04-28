@@ -1,111 +1,82 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
-  LayoutDashboard,
+  Home,
+  PlusCircle,
+  Image,
   Sparkles,
-  Image as GalleryIcon,
-  FlaskConical,
-  Vote,
-  History,
-  Settings as SettingsIcon,
+  Users,
+  ListChecks,
+  Settings as SettingsIcon
 } from 'lucide-react';
 
-import { ThemeProvider } from './contexts/ThemeContext';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import CreateArt from './components/CreateArt';
 import Gallery from './components/Gallery';
-import CommandPalette from './components/CommandPalette';
+import MuseDAO from './components/MuseDAO';
+import TransactionHistory from './components/TransactionHistory';
+import Settings from './components/Settings';
+import EvolutionLab from './components/EvolutionLab';
+import { NotificationContainer } from './components/ui/ToastNotification';
 
-// Lazy-loaded heavy components
-const EvolutionLab = React.lazy(() => import('./components/EvolutionLab').catch(() => ({ default: () => <Placeholder name="Evolution Lab" /> })));
-const MuseDAO = React.lazy(() => import('./components/MuseDAO'));
-const TransactionHistory = React.lazy(() => import('./components/TransactionHistory'));
-const Settings = React.lazy(() => import('./components/Settings'));
-
-const NAVIGATION = [
-  { id: 'dashboard', name: 'Dashboard', icon: LayoutDashboard },
-  { id: 'create', name: 'Create Art', icon: Sparkles },
-  { id: 'gallery', name: 'Gallery', icon: GalleryIcon },
-  { id: 'evolve', name: 'Evolution Lab', icon: FlaskConical },
-  { id: 'dao', name: 'Muse DAO', icon: Vote },
-  { id: 'transactions', name: 'Transactions', icon: History },
-  { id: 'settings', name: 'Settings', icon: SettingsIcon },
+const navigation = [
+  { id: 'dashboard', name: 'Dashboard', icon: Home },
+  { id: 'create', name: 'Create Art', icon: PlusCircle },
+  { id: 'gallery', name: 'Gallery', icon: Image },
+  { id: 'evolve', name: 'Evolution Lab', icon: Sparkles },
+  { id: 'dao', name: 'Muse DAO', icon: Users },
+  { id: 'transactions', name: 'Transactions', icon: ListChecks },
+  { id: 'settings', name: 'Settings', icon: SettingsIcon }
 ];
 
-function Placeholder({ name }) {
+const App = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const activeComponent = useMemo(() => {
+    switch (activeTab) {
+      case 'create':
+        return <CreateArt />;
+      case 'gallery':
+        return <Gallery />;
+      case 'evolve':
+        return <EvolutionLab />;
+      case 'dao':
+        return <MuseDAO />;
+      case 'transactions':
+        return <TransactionHistory />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return <Dashboard />;
+    }
+  }, [activeTab]);
+
   return (
-    <div className="flex items-center justify-center min-h-[40vh] text-gray-400 text-lg">
-      {name} — coming soon
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
+      <Header onMenuClick={() => setIsSidebarOpen((current) => !current)} />
+
+      <div className="pt-16 md:flex">
+        <Sidebar
+          navigation={navigation}
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setIsSidebarOpen(false);
+          }}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+
+        <main className="flex-1 min-h-[calc(100vh-4rem)] px-4 py-6 sm:px-6 lg:px-8">
+          {activeComponent}
+        </main>
+      </div>
+
+      <NotificationContainer />
     </div>
   );
-}
+};
 
-function ActiveView({ tab }) {
-  return (
-    <React.Suspense fallback={<div className="p-8 text-center text-gray-400">Loading…</div>}>
-      {tab === 'dashboard' && <Dashboard />}
-      {tab === 'create' && <CreateArt />}
-      {tab === 'gallery' && <Gallery />}
-      {tab === 'evolve' && <EvolutionLab />}
-      {tab === 'dao' && <MuseDAO />}
-      {tab === 'transactions' && <TransactionHistory />}
-      {tab === 'settings' && <Settings />}
-    </React.Suspense>
-  );
-}
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [paletteOpen, setPaletteOpen] = useState(false);
-
-  // Cmd/Ctrl+K global shortcut — resolves issue #156
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setPaletteOpen((prev) => !prev);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const handleNavigate = useCallback((tabId) => {
-    setActiveTab(tabId);
-    setSidebarOpen(false);
-  }, []);
-
-  return (
-    <ThemeProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
-        <Header
-          onMenuClick={() => setSidebarOpen((prev) => !prev)}
-          onOpenPalette={() => setPaletteOpen(true)}
-        />
-
-        <div className="flex flex-1 pt-16 sm:pt-20">
-          <Sidebar
-            navigation={NAVIGATION}
-            activeTab={activeTab}
-            onTabChange={handleNavigate}
-            isOpen={sidebarOpen}
-            onClose={() => setSidebarOpen(false)}
-          />
-
-          <main className="flex-1 min-w-0 md:ml-64">
-            <ActiveView tab={activeTab} />
-          </main>
-        </div>
-
-        <CommandPalette
-          isOpen={paletteOpen}
-          onClose={() => setPaletteOpen(false)}
-          onNavigate={handleNavigate}
-          activeTab={activeTab}
-        />
-      </div>
-    </ThemeProvider>
-  );
-}
+export default App;

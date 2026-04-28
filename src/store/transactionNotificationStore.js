@@ -66,6 +66,67 @@ const useTransactionNotificationStore = create(
       return transaction.id;
     },
 
+    addNotification: (notificationData) => {
+      const { NOTIFICATION_TYPES } = get();
+      const notification = {
+        id: `notification-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+        type: notificationData.type || NOTIFICATION_TYPES.INFO,
+        title: notificationData.title || 'Notification',
+        message: notificationData.message || '',
+        timestamp: notificationData.timestamp || new Date().toISOString(),
+        autoHide: notificationData.autoHide !== undefined ? notificationData.autoHide : true,
+        duration: notificationData.duration || 5000,
+        transactionId: notificationData.transactionId,
+        ...notificationData
+      };
+
+      set({
+        notifications: [...get().notifications, notification]
+      });
+
+      return notification.id;
+    },
+
+    addSuccess: (title, message, options = {}) => {
+      const { NOTIFICATION_TYPES } = get();
+      return get().addNotification({
+        type: NOTIFICATION_TYPES.SUCCESS,
+        title,
+        message,
+        ...options
+      });
+    },
+
+    addError: (title, message, options = {}) => {
+      const { NOTIFICATION_TYPES } = get();
+      return get().addNotification({
+        type: NOTIFICATION_TYPES.ERROR,
+        title,
+        message,
+        ...options
+      });
+    },
+
+    addWarning: (title, message, options = {}) => {
+      const { NOTIFICATION_TYPES } = get();
+      return get().addNotification({
+        type: NOTIFICATION_TYPES.WARNING,
+        title,
+        message,
+        ...options
+      });
+    },
+
+    addInfo: (title, message, options = {}) => {
+      const { NOTIFICATION_TYPES } = get();
+      return get().addNotification({
+        type: NOTIFICATION_TYPES.INFO,
+        title,
+        message,
+        ...options
+      });
+    },
+
     updateTransactionStatus: (transactionId, newStatus, details = {}) => {
       const { transactions, STATUS, NOTIFICATION_TYPES } = get();
       const transaction = transactions.get(transactionId);
