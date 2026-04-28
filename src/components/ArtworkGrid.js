@@ -1,38 +1,58 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart, Eye, Sparkles, TrendingUp } from 'lucide-react';
 import FavoriteButton from './FavoriteButton';
 
 // ---------------------------------------------------------------------------
+// useLazyImage — fires once the card enters the viewport
+// ---------------------------------------------------------------------------
+function useLazyImage(src) {
+  const ref = useRef(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!('IntersectionObserver' in window)) { setInView(true); return; }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); observer.disconnect(); } },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!inView || !src) return;
+    let cancelled = false;
+    const img = new Image();
+    img.onload = () => { if (!cancelled) setIsLoaded(true); };
+    img.src = src;
+    return () => { cancelled = true; img.onload = null; };
+  }, [inView, src]);
+
+  return { ref, isLoaded };
+}
+
+// ---------------------------------------------------------------------------
 // ArtCardSkeleton — shimmering placeholder while Stellar data loads
-// Uses a custom shimmer keyframe injected via a <style> tag so we stay
-// compatible with the project's standard Tailwind v3 config (no JIT purge
-// issues) while still hitting the brand purple (#8b5cf6 = flow-primary).
 // ---------------------------------------------------------------------------
 const ArtCardSkeleton = () => (
   <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm">
-    {/* Image area */}
     <div className="relative aspect-square overflow-hidden bg-gray-100 skeleton-shimmer" />
-
-    {/* Body */}
     <div className="p-4 space-y-3">
-      {/* Title line */}
       <div className="h-4 rounded-lg bg-gray-100 skeleton-shimmer w-3/4" />
-
-      {/* Sub-line (creator / model tag) */}
       <div className="flex items-center gap-2">
         <div className="h-3 rounded-md bg-gray-100 skeleton-shimmer w-1/3" />
         <div className="h-3 rounded-md bg-gray-100 skeleton-shimmer w-1/4" />
       </div>
-
-      {/* Tag row */}
       <div className="flex gap-2 pt-1">
         <div className="h-5 w-14 rounded-full bg-gray-100 skeleton-shimmer" />
         <div className="h-5 w-16 rounded-full bg-gray-100 skeleton-shimmer" />
         <div className="h-5 w-10 rounded-full bg-gray-100 skeleton-shimmer" />
       </div>
-
-      {/* Price + CTA row */}
       <div className="flex items-center justify-between pt-2 border-t border-gray-50">
         <div className="h-5 w-20 rounded-lg bg-gray-100 skeleton-shimmer" />
         <div className="h-8 w-24 rounded-xl bg-gray-100 skeleton-shimmer" />
@@ -42,12 +62,14 @@ const ArtCardSkeleton = () => (
 );
 
 // ---------------------------------------------------------------------------
-// ArtCard — real artwork card rendered once data is available
+// ArtCard
 // ---------------------------------------------------------------------------
 const ArtCard = ({ artwork, listing, onBuyArtwork, onAnalyzeArtwork, address }) => {
   const isListed = !!listing;
   const isOwner = address && artwork.creator === address;
   const isVisionAnalyzed = artwork.metadata?.isVisionAnalyzed;
+
+  const { ref, isLoaded } = useLazyImage(artwork.imageUrl);
 
   return (
     <motion.div
@@ -56,14 +78,24 @@ const ArtCard = ({ artwork, listing, onBuyArtwork, onAnalyzeArtwork, address }) 
       transition={{ duration: 0.35, ease: 'easeOut' }}
       className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-purple-500/10 hover:-translate-y-1 transition-all duration-300"
     >
-      {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-gray-50">
+      {/* ── IMAGE (lazy) ── */}
+      <div ref={ref} className="relative aspect-square overflow-hidden bg-gray-50">
         {artwork.imageUrl ? (
-          <img
-            src={artwork.imageUrl}
-            alt={artwork.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+          <>
+            {/* Shimmer shown until full image loads */}
+            {!isLoaded && (
+              <div className="absolute inset-0 skeleton-shimmer" />
+            )}
+            <img
+              src={artwork.imageUrl}
+              alt={artwork.title}
+              loading="lazy"
+              decoding="async"
+              className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-500 ${
+                isLoaded ? 'opacity-100 blur-0' : 'opacity-0 blur-sm'
+              }`}
+            />
+          </>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300">
             <Eye className="w-10 h-10" />
@@ -84,16 +116,14 @@ const ArtCard = ({ artwork, listing, onBuyArtwork, onAnalyzeArtwork, address }) 
           )}
         </div>
 
-        {/* Favorite button */}
         <div className="absolute top-3 right-3">
-          <FavoriteButton 
-            artworkId={artwork.id} 
+          <FavoriteButton
+            artworkId={artwork.id}
             artworkTitle={artwork.title}
             size="sm"
           />
         </div>
 
-        {/* Analyse button (owner only, unanalysed) */}
         {isOwner && !isVisionAnalyzed && (
           <button
             onClick={() => onAnalyzeArtwork(artwork.id)}
@@ -111,7 +141,7 @@ const ArtCard = ({ artwork, listing, onBuyArtwork, onAnalyzeArtwork, address }) 
         <div className="flex items-center gap-2 text-xs text-gray-500">
           <span className="truncate max-w-[120px]">
             {artwork.creator
-              ? `${artwork.creator.slice(0, 6)}…${artwork.creator.slice(-4)}`
+              ? `${artwork.creator.slice(0, 6)}...${artwork.creator.slice(-4)}`
               : 'Unknown'}
           </span>
           {artwork.metadata?.aiModel && (
@@ -121,7 +151,6 @@ const ArtCard = ({ artwork, listing, onBuyArtwork, onAnalyzeArtwork, address }) 
           )}
         </div>
 
-        {/* Tags */}
         {artwork.metadata?.tags?.length > 0 && (
           <div className="flex flex-wrap gap-1 pt-0.5">
             {artwork.metadata.tags.slice(0, 3).map(tag => (
@@ -135,7 +164,6 @@ const ArtCard = ({ artwork, listing, onBuyArtwork, onAnalyzeArtwork, address }) 
           </div>
         )}
 
-        {/* Price + Buy */}
         <div className="flex items-center justify-between pt-2 border-t border-gray-50">
           {isListed ? (
             <span className="text-sm font-black text-gray-900">
@@ -161,9 +189,7 @@ const ArtCard = ({ artwork, listing, onBuyArtwork, onAnalyzeArtwork, address }) 
 };
 
 // ---------------------------------------------------------------------------
-// ArtworkGrid — orchestrates skeleton ↔ real card transition
-// Renders SKELETON_COUNT placeholders while isLoading is true, then
-// switches to real ArtCard components once data arrives.
+// ArtworkGrid
 // ---------------------------------------------------------------------------
 const SKELETON_COUNT = 8;
 
@@ -177,11 +203,6 @@ const ArtworkGrid = ({
 }) => {
   return (
     <>
-      {/*
-        Shimmer keyframe injected inline — avoids needing safelist in
-        tailwind.config.js and keeps this file self-contained.
-        The gradient uses the brand flow-primary purple (#8b5cf6).
-      */}
       <style>{`
         @keyframes wuta-shimmer {
           0%   { background-position: -600px 0; }
