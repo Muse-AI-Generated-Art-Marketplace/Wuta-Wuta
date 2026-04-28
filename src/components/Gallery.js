@@ -1,3 +1,6 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Eye, Filter, Search, ShoppingCart, Sparkles, X, Heart } from 'lucide-react';
+import { Skeleton } from './ui/Loading';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Eye, Search, ShoppingCart, Sparkles, X, LayoutGrid, List, Columns } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -78,6 +81,8 @@ const Gallery = () => {
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [purchaseArtwork, setPurchaseArtwork] = useState(null);
   const [purchaseState, setPurchaseState] = useState({ loading: false, error: '', success: '' });
+  const modalRef = useRef(null);
+  const purchaseModalRef = useRef(null);
 
   useEffect(() => {
     localStorage.setItem('galleryViewMode', viewMode);
@@ -89,6 +94,28 @@ const Gallery = () => {
     }
   }, [fetchAllArtworks]);
 
+  // Trap focus inside modal and close on Escape
+  useEffect(() => {
+    if (!selectedArtwork) return;
+    const el = modalRef.current;
+    if (el) el.focus();
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setSelectedArtwork(null);
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [selectedArtwork]);
+
+  useEffect(() => {
+    if (!purchaseArtwork) return;
+    const el = purchaseModalRef.current;
+    if (el) el.focus();
+    const handleKey = (e) => {
+      if (e.key === 'Escape') { setPurchaseArtwork(null); setPurchaseState({ loading: false, error: '' }); }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [purchaseArtwork]);
 
   const normalizedArtworks = useMemo(
     () => artworks.map((artwork) => normalizeArtwork(artwork, listings)),
@@ -395,8 +422,19 @@ const Gallery = () => {
         </div>
 
         {isLoading ? (
-          <div className="rounded-3xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <p className="text-lg font-semibold text-gray-900 dark:text-white">Loading gallery...</p>
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true" aria-label="Loading artworks">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                <Skeleton className="aspect-[4/3] w-full" />
+                <div className="space-y-3 p-5">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/3" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="mt-4 h-10 w-full rounded-2xl" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : filteredArtworks.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center shadow-sm dark:border-gray-700 dark:bg-gray-900">
@@ -407,6 +445,99 @@ const Gallery = () => {
             </p>
           </div>
         ) : (
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {paginatedArtworks.map((artwork) => (
+              <article
+                key={artwork.id}
+                data-testid={`artwork-card-${artwork.id}`}
+                className="group overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-gray-800 dark:bg-gray-900"
+              >
+                <button
+                  type="button"
+                  onClick={() => setSelectedArtwork(artwork)}
+                  className="block w-full text-left"
+                  aria-label={`View details for ${artwork.title}`}
+                >
+                  <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-gray-800">
+                    {artwork.image ? (
+                      <img
+                        src={artwork.image}
+                        alt={artwork.title}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-gray-400">
+                        <Eye className="h-10 w-10" />
+                      </div>
+                    )}
+
+                    <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                      <span className="rounded-full bg-black/55 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+                        {artwork.aiModel}
+                      </span>
+                      {artwork.canEvolve && (
+                        <span className="rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-semibold text-white">
+                          Evolvable
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Favorite button */}
+                    <div className="absolute right-4 top-4">
+                      <FavoriteButton 
+                        artworkId={artwork.id} 
+                        artworkTitle={artwork.title}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 p-5">
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900 dark:text-white">{artwork.title}</h2>
+                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{formatRelativeTime(artwork.createdAt)}</p>
+                    </div>
+
+                    <p className="line-clamp-2 text-sm text-gray-600 dark:text-gray-300">{artwork.prompt}</p>
+
+                    <div className="flex flex-wrap items-center gap-3 text-sm">
+                      <span className="rounded-full bg-purple-50 px-3 py-1 font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                        {artwork.humanContribution}% Human / {artwork.aiContribution}% AI
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {artwork.evolutionCount} Evolution{artwork.evolutionCount === 1 ? '' : 's'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-gray-100 pt-4 text-sm dark:border-gray-800">
+                      <div>
+                        <p className="text-xs uppercase tracking-wider text-gray-400">Creator</p>
+                        <p className="font-mono font-semibold text-gray-900 dark:text-white">{formatAddress(artwork.creator)}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs uppercase tracking-wider text-gray-400">Price</p>
+                        <p className="font-semibold text-gray-900 dark:text-white">
+                          {artwork.price !== null ? `${artwork.price} ETH` : 'Not listed'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+
+                <div className="border-t border-gray-100 p-5 pt-4 dark:border-gray-800">
+                  <button
+                    type="button"
+                    onClick={() => setPurchaseArtwork(artwork)}
+                    disabled={artwork.price === null}
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-3 font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:from-gray-300 disabled:to-gray-400"
+                  >
+                    <ShoppingCart className="h-4 w-4" />
+                    Buy Now
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
           <>
             <AnimatePresence mode="wait">
             {viewMode === 'carousel' ? (
@@ -457,11 +588,14 @@ const Gallery = () => {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 disabled={page === 1}
+                aria-label="Previous page"
+                className="min-h-[44px] min-w-[44px] rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold disabled:opacity-50"
                 className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-750"
               >
                 Previous
               </button>
 
+              <span className="text-sm font-medium" aria-live="polite">Page {page} of {totalPages}</span>
               <div className="flex items-center gap-1">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                   <button
@@ -488,6 +622,8 @@ const Gallery = () => {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
                 disabled={page === totalPages}
+                aria-label="Next page"
+                className="min-h-[44px] min-w-[44px] rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold disabled:opacity-50"
                 className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-750"
               >
                 Next
@@ -499,12 +635,22 @@ const Gallery = () => {
       </div>
 
       {selectedArtwork && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-gray-900">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="artwork-modal-title"
+          onClick={(e) => { if (e.target === e.currentTarget) setSelectedArtwork(null); }}
+        >
+          <div
+            ref={modalRef}
+            tabIndex={-1}
+            className="w-full max-w-3xl overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-gray-900 outline-none"
+          >
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-gray-800">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Artwork Details</p>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedArtwork.title}</h2>
+                <h2 id="artwork-modal-title" className="text-2xl font-bold text-gray-900 dark:text-white">{selectedArtwork.title}</h2>
               </div>
               <button
                 type="button"
@@ -564,9 +710,19 @@ const Gallery = () => {
       )}
 
       {purchaseArtwork && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Confirm Purchase</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="purchase-modal-title"
+          onClick={(e) => { if (e.target === e.currentTarget) { setPurchaseArtwork(null); setPurchaseState({ loading: false, error: '' }); } }}
+        >
+          <div
+            ref={purchaseModalRef}
+            tabIndex={-1}
+            className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl dark:bg-gray-900 outline-none"
+          >
+            <h2 id="purchase-modal-title" className="text-2xl font-bold text-gray-900 dark:text-white">Confirm Purchase</h2>
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               You are about to purchase <span className="font-semibold text-gray-900 dark:text-white">{purchaseArtwork.title}</span>.
             </p>
