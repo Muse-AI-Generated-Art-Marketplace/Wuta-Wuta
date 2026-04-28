@@ -1,0 +1,81 @@
+.lazy-artwork-wrapper {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  background-color: var(--artwork-bg, #0f0f0f);
+  border-radius: var(--artwork-radius, 4px);
+  will-change: transform;
+  isolation: isolate;
+}
+
+.lazy-artwork-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition:
+    filter 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lazy-artwork-img.is-placeholder {
+  filter: blur(20px) saturate(1.2);
+  transform: scale(1.08);
+  opacity: 0.75;
+}
+
+.lazy-artwork-img.is-loaded {
+  filter: blur(0px) saturate(1);
+  transform: scale(1);
+  opacity: 1;
+}
+
+.lazy-artwork-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    var(--skeleton-base, #1a1a1a) 30%,
+    var(--skeleton-shine, #2e2e2e) 50%,
+    var(--skeleton-base, #1a1a1a) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.lazy-artwork-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--error-bg, #1a1010);
+  color: var(--error-color, #7a3535);
+}
+
+.lazy-artwork-error svg {
+  width: clamp(24px, 15%, 48px);
+  height: auto;
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lazy-artwork-img {
+    transition: opacity 0.2s linear;
+  }
+  .lazy-artwork-img.is-placeholder {
+    filter: none;
+    transform: none;
+    opacity: 0.5;
+  }
+  .lazy-artwork-skeleton {
+    animation: none;
+    background: var(--skeleton-base, #1a1a1a);
+  }
+}
