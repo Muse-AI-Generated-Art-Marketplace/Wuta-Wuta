@@ -5,6 +5,7 @@ import { getImageSrc } from '../utils/image';
 import { useMuseStore } from '../store/museStore';
 import { useTransactionNotificationStore } from '../store/transactionNotificationStore';
 import ProgressIndicator from './ui/ProgressIndicator';
+import ArtworkUploader from './upload/ArtworkUploader';
 
 function normalizeModels(aiModels = []) {
   return aiModels.map((model) => {
@@ -386,6 +387,18 @@ const CreateArt = () => {
               className="w-full rounded-3xl border border-gray-200 bg-white px-4 py-4 text-gray-900 outline-none transition focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
             />
             {errors.prompt && <p className="text-sm text-red-600">{errors.prompt}</p>}
+          </div>
+
+          <div className="mt-6 space-y-2">
+            <label className="text-sm font-semibold text-gray-900 dark:text-white">
+              Upload Reference Image <span className="font-normal text-gray-400">(optional)</span>
+            </label>
+            <ArtworkUploader
+              onImageReady={(dataUrl) => {
+                // Store the processed image data URL for preview; tokenURI is set separately
+                updateField('uploadedImage', dataUrl);
+              }}
+            />
           </div>
 
           <div className="mt-6 space-y-2">

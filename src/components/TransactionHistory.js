@@ -25,6 +25,9 @@ const TransactionHistory = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -40,7 +43,7 @@ const TransactionHistory = () => {
 
     try {
       // Use store function to fetch transactions
-      const transactionData = await fetchWutaWutaTransactions(address, 10, page);
+      const transactionData = await fetchWutaWutaTransactions(address, 20, page);
       
       setTransactions(transactionData);
       setTotalPages(1); // Simplified for now
@@ -67,6 +70,22 @@ const TransactionHistory = () => {
       filtered = filtered.filter(tx => tx.status === filter);
     }
 
+    // Apply type filter
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(tx => tx.type === typeFilter);
+    }
+
+    // Apply date range filter
+    if (startDate) {
+      const start = new Date(startDate);
+      filtered = filtered.filter(tx => new Date(tx.createdAt) >= start);
+    }
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // Include the whole end day
+      filtered = filtered.filter(tx => new Date(tx.createdAt) <= end);
+    }
+
     // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(tx => 
@@ -79,6 +98,41 @@ const TransactionHistory = () => {
     return filtered;
   };
 
+  const exportToCSV = () => {
+    const filtered = applyFilters(transactions);
+    if (filtered.length === 0) {
+      toast.error('No transactions to export');
+      return;
+    }
+
+    const headers = ['ID', 'Hash', 'Type', 'Amount', 'Asset', 'Status', 'Date', 'Fee', 'Memo'];
+    const csvContent = [
+      headers.join(','),
+      ...filtered.map(tx => [
+        tx.id,
+        tx.hash,
+        tx.type,
+        tx.amount.value,
+        tx.amount.asset,
+        tx.status,
+        tx.createdAt,
+        tx.fee,
+        `"${tx.memo.replace(/"/g, '""')}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `wuta_wuta_transactions_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success('Transaction history exported to CSV');
+  };
+
   const getTransactionIcon = (type) => {
     switch (type) {
       case 'Payment':
@@ -87,6 +141,8 @@ const TransactionHistory = () => {
         return <Activity className="w-4 h-4" />;
       case 'Account Creation':
         return <Clock className="w-4 h-4" />;
+      case 'Mint':
+        return <Coins className="w-4 h-4" />;
       default:
         return <Activity className="w-4 h-4" />;
     }
@@ -95,24 +151,26 @@ const TransactionHistory = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'success':
-        return 'text-green-600 bg-green-100';
+        return 'text-green-600 bg-green-100/50 backdrop-blur-sm';
       case 'failed':
-        return 'text-red-600 bg-red-100';
+        return 'text-red-600 bg-red-100/50 backdrop-blur-sm';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-gray-600 bg-gray-100/50 backdrop-blur-sm';
     }
   };
 
   const getTypeColor = (type) => {
     switch (type) {
       case 'Payment':
-        return 'text-blue-600 bg-blue-100';
+        return 'text-blue-600 bg-blue-100/50';
       case 'Contract Call':
-        return 'text-purple-600 bg-purple-100';
+        return 'text-purple-600 bg-purple-100/50';
       case 'Account Creation':
-        return 'text-green-600 bg-green-100';
+        return 'text-green-600 bg-green-100/50';
+      case 'Mint':
+        return 'text-amber-600 bg-amber-100/50';
       default:
-        return 'text-gray-600 bg-gray-100';
+        return 'text-gray-600 bg-gray-100/50';
     }
   };
 
@@ -142,52 +200,117 @@ const TransactionHistory = () => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-7xl mx-auto"
+      className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
     >
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Transaction History</h1>
-        <p className="text-gray-600">View your recent Stellar transactions related to Wuta-Wuta</p>
-      </div>
-
-      {/* Filters and Search */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl shadow-lg p-6 mb-8"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Search */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search transactions..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-
-          {/* Status Filter */}
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-600 mb-2">
+            Transaction History
+          </h1>
+          <p className="text-gray-600 font-medium">Manage and audit your blockchain activity on Wuta-Wuta</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={exportToCSV}
+            className="flex items-center px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-xl shadow-sm hover:shadow-md hover:bg-gray-50 transition-all font-semibold"
           >
-            <option value="all">All Status</option>
-            <option value="success">Successful</option>
-            <option value="failed">Failed</option>
-          </select>
-
-          {/* Refresh Button */}
+            <ArrowUpRight className="w-4 h-4 mr-2 rotate-90" />
+            Export CSV
+          </button>
           <button
             onClick={loadTransactions}
             disabled={isLoading}
-            className="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-xl shadow-lg shadow-purple-200 hover:bg-purple-700 disabled:opacity-50 transition-all font-semibold"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
+        </div>
+      </div>
+
+      {/* Advanced Filters */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-white/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl p-6 mb-8"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Search */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Search</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Hash, type, memo..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all outline-none text-sm"
+              />
+            </div>
+          </div>
+
+          {/* Type Filter */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Type</label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 transition-all outline-none text-sm appearance-none cursor-pointer"
+            >
+              <option value="all">All Types</option>
+              <option value="Payment">Payment</option>
+              <option value="Contract Call">Contract Call</option>
+              <option value="Account Creation">Account Creation</option>
+              <option value="Mint">Mint</option>
+            </select>
+          </div>
+
+          {/* Date Range */}
+          <div className="md:col-span-2 grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">From</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 transition-all outline-none text-sm"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">To</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 transition-all outline-none text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Status Pills */}
+        <div className="flex flex-wrap items-center gap-3 mt-6 pt-6 border-t border-gray-100">
+          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mr-2">Status:</span>
+          {['all', 'success', 'failed'].map((status) => (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold capitalize transition-all ${
+                filter === status 
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-200' 
+                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+              }`}
+            >
+              {status}
+            </button>
+          ))}
         </div>
       </motion.div>
 

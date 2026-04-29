@@ -4,7 +4,7 @@ import { useWalletStore } from '../store/walletStore';
 
 const Settings = () => {
   const { theme, isDark, toggleTheme } = useTheme();
-  const { address, isConnected, connectWallet, disconnectWallet } = useWalletStore();
+  const { address, isConnected, connectWallet, disconnectWallet, error, errorMessage, clearError } = useWalletStore();
   const [autoSync, setAutoSync] = useState(false);
   const [subscriptionEmail, setSubscriptionEmail] = useState('');
   const [defaultBlockchain, setDefaultBlockchain] = useState('stellar');
@@ -52,6 +52,22 @@ const Settings = () => {
               </button>
             )}
           </div>
+          { (error || errorMessage) && (
+            <div className="mt-3 p-3 rounded-md bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <strong className="block">Wallet connection error</strong>
+                  <p className="text-sm mt-1">{(error && error.message) || errorMessage || 'An unknown error occurred while connecting your wallet.'}</p>
+                  {error && error.helpUrl && (
+                    <a href={error.helpUrl} target="_blank" rel="noreferrer" className="underline text-sm">Get help</a>
+                  )}
+                </div>
+                <div>
+                  <button onClick={clearError} className="px-3 py-1 rounded-md bg-gray-100 dark:bg-gray-800 text-sm">Dismiss</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl bg-white dark:bg-gray-800 p-6 shadow-sm space-y-4">

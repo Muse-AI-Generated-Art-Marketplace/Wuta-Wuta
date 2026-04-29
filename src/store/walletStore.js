@@ -123,9 +123,59 @@ const useWalletStore = create(
 
     } catch (error) {
       console.error('Failed to connect wallet:', error);
+
+      // Map known errors to user-friendly messages and optional actions
+      const mapWalletError = (err) => {
+        const msg = String(err?.message || err || 'Unknown wallet error');
+
+        if (/Freighter wallet not found/i.test(msg)) {
+          return {
+            code: 'WALLET_NOT_FOUND',
+            message: 'Freighter wallet not found. Please install the Freighter extension or use a compatible wallet.',
+            action: 'install',
+            helpUrl: 'https://www.freighter.app/'
+          };
+        }
+
+        if (/user rejected|rejected request|denied/i.test(msg)) {
+          return {
+            code: 'USER_REJECTED',
+            message: 'Connection request was rejected in your wallet. Please approve the request to connect.',
+            action: 'retry'
+          };
+        }
+
+        if (/network|timeout|failed to fetch/i.test(msg)) {
+          return {
+            code: 'NETWORK_ERROR',
+            message: 'Network error while connecting to the wallet. Check your internet connection and try again.',
+            action: 'retry'
+          };
+        }
+
+        if (/public key|getPublicKey|Failed to retrieve public key/i.test(msg)) {
+          return {
+            code: 'NO_PUBLIC_KEY',
+            message: 'Failed to retrieve public key from the wallet. Ensure your wallet is unlocked and you granted permission.',
+            action: 'retry'
+          };
+        }
+
+        // Fallback generic message
+        return {
+          code: 'UNKNOWN_ERROR',
+          message: msg,
+          action: 'retry'
+        };
+      };
+
+      const structured = mapWalletError(error);
+
       set({
         isConnecting: false,
-        error: error.message
+        // Keep backwards compatibility by exposing both structured and plain message
+        error: structured,
+        errorMessage: structured.message
       });
     }
       },

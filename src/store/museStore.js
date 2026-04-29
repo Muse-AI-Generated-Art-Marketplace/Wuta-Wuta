@@ -331,6 +331,51 @@ const useMuseStore = create((set, get) => ({
     }
   },
 
+  fetchWutaWutaTransactions: async (address, limit = 10, page = 1) => {
+    if (!address) return [];
+
+    try {
+      const horizonUrl = process.env.REACT_APP_HORIZON_URL || 'https://horizon-testnet.stellar.org';
+      // Use the address to fetch transactions from Horizon
+      const response = await fetch(`${horizonUrl}/accounts/${address}/transactions?limit=${limit}&order=desc&include_failed=true`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch transactions from Horizon');
+      }
+
+      const data = await response.json();
+      const records = data._embedded.records;
+
+      // Map Horizon transactions to the UI format
+      const mappedTransactions = records.map(tx => {
+        // Determine type based on operations (simplified for demo)
+        // In a full implementation, we'd fetch operations for each tx
+        let type = 'Contract Call';
+        if (tx.memo_type === 'text' && tx.memo.includes('mint')) type = 'Mint';
+        else if (tx.operation_count === 1) type = 'Payment';
+        
+        return {
+          id: tx.id,
+          hash: tx.hash,
+          type: type,
+          amount: { 
+            value: (parseFloat(tx.fee_charged) / 10000000).toFixed(7), // Mocking amount as fee fraction for demo
+            asset: 'XLM' 
+          },
+          status: tx.successful ? 'success' : 'failed',
+          createdAt: tx.created_at,
+          fee: (parseFloat(tx.fee_charged) / 10000000).toString(),
+          memo: tx.memo || '',
+        };
+      });
+
+      return mappedTransactions;
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      throw error;
+    }
+  },
+
   // Getters
   getArtworkById: (tokenId) => {
     return get().artworks.find(artwork => artwork.id === tokenId);

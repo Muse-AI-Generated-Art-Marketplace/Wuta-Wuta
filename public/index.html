@@ -12,6 +12,18 @@
       content="Muse AI Art Marketplace - Create, explore, and collect AI-human collaborative digital artwork"
     />
     
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('theme');
+          var supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+          if (theme === 'dark' || (!theme && supportDarkMode)) {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+    
     <!-- OpenGraph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://muse-art-marketplace.com/" />
