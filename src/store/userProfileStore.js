@@ -26,12 +26,14 @@ const useUserProfileStore = create(
           totalArtworks: 0,
           totalSales: 0,
           totalValue: 0,
+          totalEarnings: 0,
           activeListings: 0,
           averagePrice: 0,
           followers: 0,
           following: 0,
           createdAt: null
         },
+        achievements: [],
         verification: {
           isVerified: false,
           verificationLevel: 'basic', // basic, verified, premium
@@ -209,10 +211,20 @@ const useUserProfileStore = create(
           ];
 
           set(state => ({
-            collection: {
-              ...state.collection,
               artworks: mockArtworks,
               loading: false
+            }
+          }));
+
+          // Update stats based on collection
+          set(state => ({
+            profile: {
+              ...state.profile,
+              stats: {
+                ...state.profile.stats,
+                totalArtworks: mockArtworks.length,
+                totalValue: mockArtworks.reduce((sum, art) => sum + (art.price || 0), 0)
+              }
             }
           }));
 
@@ -294,6 +306,26 @@ const useUserProfileStore = create(
                 ...state.tradingHistory.pagination,
                 total: mockTransactions.length
               }
+            }
+          }));
+
+          // Update stats based on trading history
+          const sales = mockTransactions.filter(tx => tx.type === 'sale');
+          const totalEarnings = sales.reduce((sum, tx) => sum + tx.price, 0);
+          
+          set(state => ({
+            profile: {
+              ...state.profile,
+              stats: {
+                ...state.profile.stats,
+                totalSales: sales.length,
+                totalEarnings: totalEarnings
+              },
+              achievements: [
+                { id: '1', name: 'First Sale', description: 'Made your first sale on Muse', icon: '🏆', date: sales.length > 0 ? sales[0].timestamp : null },
+                { id: '2', name: 'Collector', description: 'Owned more than 5 artworks', icon: '🖼️', date: get().collection.artworks.length > 5 ? new Date().toISOString() : null },
+                { id: '3', name: 'Top Earner', description: 'Earned more than 10 ETH', icon: '💰', date: totalEarnings > 10 ? new Date().toISOString() : null }
+              ]
             }
           }));
 

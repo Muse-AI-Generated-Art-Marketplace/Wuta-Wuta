@@ -133,7 +133,7 @@ const UserProfile = () => {
           { label: 'Total Artworks', value: profile.stats.totalArtworks, icon: Palette, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
           { label: 'Active Listings', value: profile.stats.activeListings, icon: Activity, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
           { label: 'Total Sales', value: profile.stats.totalSales, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
-          { label: 'Portfolio Value', value: `${profile.stats.totalValue.toFixed(2)} ETH`, icon: DollarSign, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' }
+          { label: 'Total Earnings', value: `${(profile.stats.totalEarnings || 0).toFixed(2)} ETH`, icon: DollarSign, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' }
         ].map((stat, index) => (
           <motion.div
             key={stat.label}
@@ -346,6 +346,46 @@ const UserProfile = () => {
                         </div>
                       )}
                     </motion.div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+
+          {/* Achievements Section */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 mt-6"
+          >
+            <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center">
+              <Award className="w-5 h-5 mr-2 text-yellow-500" />
+              Achievements
+            </h2>
+            
+            {(!profile.achievements || profile.achievements.length === 0) ? (
+              <div className="text-center py-8 border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50">
+                <Award className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                <p className="text-sm font-medium text-gray-500">No achievements yet</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {profile.achievements.map((achievement) => (
+                  <div 
+                    key={achievement.id} 
+                    className={`flex items-center p-3 rounded-xl border transition-all ${achievement.date ? 'bg-yellow-50 border-yellow-100' : 'bg-gray-50 border-gray-100 opacity-60 grayscale'}`}
+                  >
+                    <div className="text-2xl mr-4">{achievement.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-gray-900 text-sm truncate">{achievement.name}</h4>
+                      <p className="text-xs text-gray-500 line-clamp-1">{achievement.description}</p>
+                    </div>
+                    {achievement.date && (
+                      <div className="text-[10px] font-bold text-yellow-700 bg-white px-2 py-0.5 rounded-full shadow-sm">
+                        Unlocked
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

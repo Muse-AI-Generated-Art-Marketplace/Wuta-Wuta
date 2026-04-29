@@ -15,6 +15,7 @@ import { useDripsStore } from '../store/dripsStore';
 import { useMuseStore } from '../store/museStore';
 import { Card, CardHeader, CardTitle, CardContent, Badge } from './ui';
 import ClaimEarningsWidget from './ClaimEarningsWidget';
+import MarketStats from './MarketStats';
 
 const Dashboard = () => {
   const { 
@@ -131,6 +132,9 @@ const Dashboard = () => {
 
       {/* Claim Earnings Widget (clean, single instance) */}
       <ClaimEarningsWidget />
+
+      {/* Real-time Market Statistics */}
+      <MarketStats />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
